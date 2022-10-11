@@ -1,0 +1,93 @@
+{
+  "Graph|2022-10-11T12:42:57.764Z|43454": {
+    "ƒ.Graph": {
+      "name": "Level1",
+      "active": true,
+      "components": {},
+      "children": [
+        {
+          "ƒ.Node": {
+            "name": "Mario",
+            "active": true,
+            "components": {
+              "ComponentMesh": [
+                {
+                  "ƒ.ComponentMesh": {
+                    "idMesh": "MeshSprite|2022-10-11T12:44:41.130Z|04814",
+                    "pivot": {
+                      "translation": "[0, 0, 0]",
+                      "rotation": "[0, 0, 0]",
+                      "scaling": "[1, 1, 1]"
+                    },
+                    "Component": {
+                      "active": true
+                    }
+                  }
+                }
+              ],
+              "ComponentMaterial": [
+                {
+                  "ƒ.ComponentMaterial": {
+                    "sortForAlpha": false,
+                    "clrPrimary": "[1, 1, 1, 1]",
+                    "clrSecondary": "[1, 1, 1, 1]",
+                    "pivot": {
+                      "translation": "[0, 0]",
+                      "rotation": 0,
+                      "scaling": "[1, 1]"
+                    },
+                    "Component": {
+                      "active": true
+                    },
+                    "idMaterial": "Material|2022-10-11T12:45:58.293Z|89450"
+                  }
+                }
+              ]
+            },
+            "children": []
+          }
+        }
+      ],
+      "idResource": "Graph|2022-10-11T12:42:57.764Z|43454",
+      "type": "Graph"
+    }
+  },
+  "MeshCube|2022-10-11T12:43:49.981Z|23855": {
+    "ƒ.MeshCube": {
+      "idResource": "MeshCube|2022-10-11T12:43:49.981Z|23855",
+      "name": "MeshCube",
+      "type": "MeshCube"
+    }
+  },
+  "Material|2022-10-11T12:44:29.777Z|56473": {
+    "ƒ.Material": {
+      "name": "ShaderLit",
+      "idResource": "Material|2022-10-11T12:44:29.777Z|56473",
+      "shader": "ShaderLit",
+      "coat": {
+        "ƒ.CoatColored": {
+          "color": "[1, 1, 1, 1]"
+        }
+      }
+    }
+  },
+  "MeshSprite|2022-10-11T12:44:41.130Z|04814": {
+    "ƒ.MeshSprite": {
+      "idResource": "MeshSprite|2022-10-11T12:44:41.130Z|04814",
+      "name": "MeshSprite",
+      "type": "MeshSprite"
+    }
+  },
+  "Material|2022-10-11T12:45:58.293Z|89450": {
+    "ƒ.Material": {
+      "name": "ShaderLitTextured",
+      "idResource": "Material|2022-10-11T12:45:58.293Z|89450",
+      "shader": "ShaderLitTextured",
+      "coat": {
+        "ƒ.CoatTextured": {
+          "color": "[1, 1, 1, 1]"
+        }
+      }
+    }
+  }
+}
