@@ -122,54 +122,36 @@
       }
     }
   },
+  "Material|2022-10-13T12:30:09.411Z|62529": {
+    "ƒ.Material": {
+      "name": "QuestionBlock",
+      "idResource": "Material|2022-10-13T12:30:09.411Z|62529",
+      "shader": "ShaderLitTextured",
+      "coat": {
+        "ƒ.CoatTextured": {
+          "color": "[1, 1, 1, 1]",
+          "idTexture": "TextureImage|2022-10-13T12:29:41.691Z|41802"
+        }
+      }
+    }
+  },
+  "TextureImage|2022-10-13T12:29:41.691Z|41802": {
+    "ƒ.TextureImage": {
+      "url": "Textures\\questionMark.png",
+      "type": "TextureImage",
+      "Texture": {
+        "idResource": "TextureImage|2022-10-13T12:29:41.691Z|41802",
+        "name": "Textures\\questionMark.png",
+        "mipmap": "CRISP"
+      }
+    }
+  },
   "Graph|2022-10-11T12:42:57.764Z|43454": {
     "ƒ.Graph": {
       "name": "Level1",
       "active": true,
       "components": {},
       "children": [
-        {
-          "ƒ.Node": {
-            "name": "Mario",
-            "active": true,
-            "components": {
-              "ComponentMesh": [
-                {
-                  "ƒ.ComponentMesh": {
-                    "idMesh": "MeshQuad|2022-10-11T14:49:59.426Z|21823",
-                    "pivot": {
-                      "translation": "[0, 0, 0]",
-                      "rotation": "[0, 0, 0]",
-                      "scaling": "[1, 1, 1]"
-                    },
-                    "Component": {
-                      "active": true
-                    }
-                  }
-                }
-              ],
-              "ComponentMaterial": [
-                {
-                  "ƒ.ComponentMaterial": {
-                    "sortForAlpha": false,
-                    "clrPrimary": "[1, 1, 1, 1]",
-                    "clrSecondary": "[1, 1, 1, 1]",
-                    "pivot": {
-                      "translation": "[-0.3449999988079071, 0.10499998927116394]",
-                      "rotation": 0,
-                      "scaling": "[0.029999999329447746, 0.044000010937452316]"
-                    },
-                    "Component": {
-                      "active": true
-                    },
-                    "idMaterial": "Material|2022-10-11T12:45:58.293Z|89450"
-                  }
-                }
-              ]
-            },
-            "children": []
-          }
-        },
         {
           "ƒ.Node": {
             "name": "Enemies",
@@ -4551,7 +4533,22 @@
           "ƒ.Node": {
             "name": "Backgrounds",
             "active": true,
-            "components": {},
+            "components": {
+              "ComponentTransform": [
+                {
+                  "ƒ.ComponentTransform": {
+                    "local": {
+                      "translation": "[0, 4, 0]",
+                      "rotation": "[0, 0, 0]",
+                      "scaling": "[1.2000000476837158, 1.2000000476837158, 1]"
+                    },
+                    "Component": {
+                      "active": true
+                    }
+                  }
+                }
+              ]
+            },
             "children": [
               {
                 "ƒ.Node": {
@@ -4732,34 +4729,76 @@
               }
             ]
           }
+        },
+        {
+          "ƒ.Node": {
+            "name": "MarioTransform",
+            "active": true,
+            "components": {
+              "ComponentTransform": [
+                {
+                  "ƒ.ComponentTransform": {
+                    "local": {
+                      "translation": "[0, 0, 0]",
+                      "rotation": "[0, 0, 0]",
+                      "scaling": "[1, 1, 1]"
+                    },
+                    "Component": {
+                      "active": true
+                    }
+                  }
+                }
+              ]
+            },
+            "children": [
+              {
+                "ƒ.Node": {
+                  "name": "Mario",
+                  "active": true,
+                  "components": {
+                    "ComponentMesh": [
+                      {
+                        "ƒ.ComponentMesh": {
+                          "idMesh": "MeshQuad|2022-10-11T14:49:59.426Z|21823",
+                          "pivot": {
+                            "translation": "[0, 0, 0]",
+                            "rotation": "[0, 0, 0]",
+                            "scaling": "[1, 1, 1]"
+                          },
+                          "Component": {
+                            "active": true
+                          }
+                        }
+                      }
+                    ],
+                    "ComponentMaterial": [
+                      {
+                        "ƒ.ComponentMaterial": {
+                          "sortForAlpha": false,
+                          "clrPrimary": "[1, 1, 1, 1]",
+                          "clrSecondary": "[1, 1, 1, 1]",
+                          "pivot": {
+                            "translation": "[-0.3449999988079071, 0.10499998927116394]",
+                            "rotation": 0,
+                            "scaling": "[0.029999999329447746, 0.044000010937452316]"
+                          },
+                          "Component": {
+                            "active": true
+                          },
+                          "idMaterial": "Material|2022-10-11T12:45:58.293Z|89450"
+                        }
+                      }
+                    ]
+                  },
+                  "children": []
+                }
+              }
+            ]
+          }
         }
       ],
       "idResource": "Graph|2022-10-11T12:42:57.764Z|43454",
       "type": "Graph"
-    }
-  },
-  "TextureImage|2022-10-13T12:29:41.691Z|41802": {
-    "ƒ.TextureImage": {
-      "url": "Textures\\questionMark.png",
-      "type": "TextureImage",
-      "Texture": {
-        "idResource": "TextureImage|2022-10-13T12:29:41.691Z|41802",
-        "name": "Textures\\questionMark.png",
-        "mipmap": "CRISP"
-      }
-    }
-  },
-  "Material|2022-10-13T12:30:09.411Z|62529": {
-    "ƒ.Material": {
-      "name": "QuestionBlock",
-      "idResource": "Material|2022-10-13T12:30:09.411Z|62529",
-      "shader": "ShaderLitTextured",
-      "coat": {
-        "ƒ.CoatTextured": {
-          "color": "[1, 1, 1, 1]",
-          "idTexture": "TextureImage|2022-10-13T12:29:41.691Z|41802"
-        }
-      }
     }
   }
 }
