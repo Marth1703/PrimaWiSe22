@@ -58,18 +58,27 @@ var Script;
         console.log("Mario:");
         hndLoad(_event);
     }
-    let tempPos = 1;
+    let isFacingRight = true;
     function update(_event) {
         // ƒ.Physics.simulate();
+        //ƒ.AudioManager.default.update();
         if (ƒ.Keyboard.isPressedOne([ƒ.KEYBOARD_CODE.D])) {
-            tempPos += 0.1;
-            ƒ.AudioManager.default.update();
-            marioTransform.getComponent(ƒ.ComponentTransform).mtxLocal.translateX(0.15 * Math.sin(tempPos));
+            marioTransform.getComponent(ƒ.ComponentTransform).mtxLocal.translateX(0.15);
+            if (!isFacingRight) {
+                marioSpriteNode.getComponent(ƒ.ComponentTransform).mtxLocal.rotateY(180);
+                isFacingRight = true;
+            }
         }
-        // else{
-        //   marioTransform.removeAllChildren();
-        //   marioTransform.addChild(marioNode);
-        // }
+        else if (ƒ.Keyboard.isPressedOne([ƒ.KEYBOARD_CODE.A])) {
+            marioTransform.getComponent(ƒ.ComponentTransform).mtxLocal.translateX(-0.15);
+            if (isFacingRight) {
+                marioSpriteNode.getComponent(ƒ.ComponentTransform).mtxLocal.rotateY(180);
+                isFacingRight = false;
+            }
+        }
+        else {
+            marioSpriteNode.showFrame(2);
+        }
         viewport.draw();
     }
     async function hndLoad(_event) {
@@ -87,8 +96,7 @@ var Script;
         marioTransform.removeAllChildren();
         marioTransform.addChild(marioSpriteNode);
         //marioNode = marioSpriteNode;
-        viewport.draw();
-        ƒ.Loop.start(ƒ.LOOP_MODE.TIME_GAME, 100);
+        //ƒ.Loop.start(ƒ.LOOP_MODE.TIME_GAME, 100);
     }
 })(Script || (Script = {}));
 //# sourceMappingURL=Script.js.map

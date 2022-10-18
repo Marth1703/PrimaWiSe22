@@ -20,22 +20,32 @@ namespace Script {
     marioTransform = branch.getChildrenByName("MarioTransform")[0];
     marioNode = marioTransform.getChildrenByName("Mario")[0];
     console.log("Mario:");
-
     hndLoad(_event);
+    
   }
 
-  let tempPos: number = 1;
+  let isFacingRight: boolean = true;
+
   function update(_event: Event): void {
     // ƒ.Physics.simulate();
+    //ƒ.AudioManager.default.update();
     if (ƒ.Keyboard.isPressedOne([ƒ.KEYBOARD_CODE.D])) {
-      tempPos += 0.1;
-      ƒ.AudioManager.default.update();
-      marioTransform.getComponent(ƒ.ComponentTransform).mtxLocal.translateX(0.15 * Math.sin(tempPos));
+      marioTransform.getComponent(ƒ.ComponentTransform).mtxLocal.translateX(0.15);
+      if (!isFacingRight) {
+        marioSpriteNode.getComponent(ƒ.ComponentTransform).mtxLocal.rotateY(180);
+        isFacingRight = true;
+      }
     }
-    // else{
-    //   marioTransform.removeAllChildren();
-    //   marioTransform.addChild(marioNode);
-    // }
+    else if (ƒ.Keyboard.isPressedOne([ƒ.KEYBOARD_CODE.A])) {
+      marioTransform.getComponent(ƒ.ComponentTransform).mtxLocal.translateX(-0.15);
+      if (isFacingRight) {
+        marioSpriteNode.getComponent(ƒ.ComponentTransform).mtxLocal.rotateY(180);
+        isFacingRight = false;
+      }
+    }
+    else {
+      marioSpriteNode.showFrame(2);
+    }
     viewport.draw();
 
   }
@@ -58,11 +68,7 @@ namespace Script {
     marioTransform.removeAllChildren();
     marioTransform.addChild(marioSpriteNode);
     //marioNode = marioSpriteNode;
-
-
-    viewport.draw();
-
-    ƒ.Loop.start(ƒ.LOOP_MODE.TIME_GAME, 100);
+    //ƒ.Loop.start(ƒ.LOOP_MODE.TIME_GAME, 100);
 
   }
 
