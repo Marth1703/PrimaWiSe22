@@ -39,10 +39,13 @@ var Script;
 var Script;
 (function (Script) {
     var ƒ = FudgeCore;
+    var ƒAid = FudgeAid;
     ƒ.Debug.info("Main Program Template running!");
     let viewport;
+    let marioSpriteNode;
     document.addEventListener("interactiveViewportStarted", start);
     let marioTransform;
+    let marioNode;
     function start(_event) {
         viewport = _event.detail;
         ƒ.Loop.addEventListener("loopFrame" /* ƒ.EVENT.LOOP_FRAME */, update);
@@ -51,15 +54,41 @@ var Script;
         let branch = viewport.getBranch();
         console.log(branch);
         marioTransform = branch.getChildrenByName("MarioTransform")[0];
+        marioNode = marioTransform.getChildrenByName("Mario")[0];
         console.log("Mario:");
+        hndLoad(_event);
     }
     let tempPos = 1;
     function update(_event) {
-        // ƒ.Physics.simulate();  // if physics is included and used
+        // ƒ.Physics.simulate();
+        if (ƒ.Keyboard.isPressedOne([ƒ.KEYBOARD_CODE.D])) {
+            tempPos += 0.1;
+            ƒ.AudioManager.default.update();
+            marioTransform.getComponent(ƒ.ComponentTransform).mtxLocal.translateX(0.15 * Math.sin(tempPos));
+        }
+        // else{
+        //   marioTransform.removeAllChildren();
+        //   marioTransform.addChild(marioNode);
+        // }
         viewport.draw();
-        tempPos += 0.1;
-        ƒ.AudioManager.default.update();
-        marioTransform.getComponent(ƒ.ComponentTransform).mtxLocal.translateX(0.15 * Math.sin(tempPos));
+    }
+    async function hndLoad(_event) {
+        let imgSpriteSheet = new ƒ.TextureImage();
+        await imgSpriteSheet.load("./Textures/mariowalkx16Image.png");
+        let coat = new ƒ.CoatTextured(undefined, imgSpriteSheet);
+        let animation = new ƒAid.SpriteSheetAnimation("Walk", coat);
+        animation.generateByGrid(ƒ.Rectangle.GET(0, 0, 15, 16), 3, 16, ƒ.ORIGIN2D.BOTTOMCENTER, ƒ.Vector2.X(16));
+        marioSpriteNode = new ƒAid.NodeSprite("Sprite");
+        marioSpriteNode.addComponent(new ƒ.ComponentTransform(new ƒ.Matrix4x4()));
+        marioSpriteNode.setAnimation(animation);
+        marioSpriteNode.setFrameDirection(1);
+        marioSpriteNode.mtxLocal.translateY(-0.5);
+        marioSpriteNode.framerate = 12;
+        marioTransform.removeAllChildren();
+        marioTransform.addChild(marioSpriteNode);
+        //marioNode = marioSpriteNode;
+        viewport.draw();
+        ƒ.Loop.start(ƒ.LOOP_MODE.TIME_GAME, 100);
     }
 })(Script || (Script = {}));
 //# sourceMappingURL=Script.js.map
