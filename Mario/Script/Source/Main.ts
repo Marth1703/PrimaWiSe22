@@ -4,7 +4,6 @@ namespace Script {
   fc.Debug.info("Main Program Template running!");
 
   let viewport: fc.Viewport;
-  let deltaTime: number;
   let pos: fc.Vector3;
 
   let marioSpriteNode: ƒAid.NodeSprite;
@@ -18,19 +17,25 @@ namespace Script {
   let enemiesNodes: fc.Node;
   let goombaNodes: fc.Node[];
 
-  let gravity: number = -2.5;
+  let gravity: number = -90;
   let marioWalkSpeed: number = 5;
   let marioVelocityY: number = 0;
-  let marioJumpHeight: number = 0.5;
+  let marioJumpHeight: number = 18.5;
 
   let animationWalk: ƒAid.SpriteSheetAnimation;
   let animationStand: ƒAid.SpriteSheetAnimation;
   let animationGoomba: ƒAid.SpriteSheetAnimation;
   let animationJump: ƒAid.SpriteSheetAnimation;
 
+  let currentAnimation: ƒAid.SpriteSheetAnimation;
+  
+  let cmpCamera: fc.ComponentCamera;
+
+  let cmpAudioMario: fc.ComponentAudio;
+  let jumpAudio: fc.Audio;
+
   function start(_event: CustomEvent): void {
     viewport = _event.detail;
-
     fc.Loop.addEventListener(fc.EVENT.LOOP_FRAME, update);
     fc.Loop.start();  // start the game loop to continously draw the viewport, update the audiosystem and drive the physics i/a
     console.log(viewport);
@@ -43,8 +48,16 @@ namespace Script {
     goombaNodes = enemiesNodes.getChildren();
     marioTransformComponent = marioTransform.getComponent(fc.ComponentTransform);
     console.log("Mario:");
-    hndLoad(_event);
-    
+    createAnimations(_event);
+
+    // let cmpCamera: fc.ComponentCamera = branch.getComponent(fc.ComponentCamera);
+    // cmpCamera.mtxPivot.translation = new ƒ.Vector3(0, 1.2, -7);
+
+    cmpCamera = viewport.camera;
+
+    let cmpAudio: fc.ComponentAudio = branch.getComponent(fc.ComponentAudio);
+    cmpAudio.volume = 1;
+    loadJumpAudio();
   }
 
   let isFacingRight: boolean = true;
@@ -52,44 +65,53 @@ namespace Script {
   let isJumping: boolean = false;
   let alreadyJumped: boolean = false;
 
-  function update(_event: Event): void {
-    deltaTime = fc.Loop.timeFrameGame/1000;
-    marioVelocityY += gravity*deltaTime;
-    marioTransformComponent.mtxLocal.translateY(marioVelocityY);
-    
-    pos = marioTransformComponent.mtxLocal.translation;
+  let currentFloorHeight = 0;
 
-    if(fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.SPACE]) && !isJumping){ 
-      if(!alreadyJumped){
+  function update(_event: Event): void {
+    
+    let deltaTime: number = fc.Loop.timeFrameGame / 1000;
+    marioVelocityY += gravity * deltaTime;
+    pos = marioTransformComponent.mtxLocal.translation;
+    if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.SPACE]) && !isJumping) {
+      if (!alreadyJumped) {
         marioVelocityY = marioJumpHeight;
         isJumping = true;
         alreadyJumped = true;
+        cmpAudioMario.play(true);
+        currentFloorHeight = -10;
       }
     }
-    else if(!fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.SPACE])) {
+    else if (!fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.SPACE])) {
       alreadyJumped = false;
     }
 
-    if (pos.y + marioVelocityY > 0){
+    if (pos.y + marioVelocityY > currentFloorHeight) {
       marioSpriteNode.setAnimation(animationJump);
-      marioTransformComponent.mtxLocal.translateY(marioVelocityY*deltaTime);
+      currentAnimation = animationJump;
     }
-    else {
+    else if (pos.y <= currentFloorHeight){
       marioVelocityY = 0;
-      pos.y = 0;
+      pos.y = currentFloorHeight;
       marioTransformComponent.mtxLocal.translation = pos;
       isJumping = false;
+      if (currentAnimation != animationWalk) {
+        marioSpriteNode.setAnimation(animationWalk);
+        currentAnimation = animationWalk;
+      }
     }
 
-    if(fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.SHIFT_LEFT])){ 
-      marioWalkSpeed = 10;
+    marioTransformComponent.mtxLocal.translateY(marioVelocityY*deltaTime);
+
+    if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.SHIFT_LEFT])) {
+      marioWalkSpeed = 8;
       marioSpriteNode.framerate = 30;
     }
     if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.D, fc.KEYBOARD_CODE.ARROW_RIGHT])) {
-      if (!isWalking && !isJumping){
+      if (!isWalking && !isJumping) {
         marioSpriteNode.setAnimation(animationWalk);
-        isWalking = true;   
-      }   
+        currentAnimation = animationWalk;
+        isWalking = true;
+      }
       marioTransformComponent.mtxLocal.translateX(deltaTime * marioWalkSpeed);
       if (!isFacingRight) {
         marioSpriteNode.getComponent(fc.ComponentTransform).mtxLocal.rotateY(180);
@@ -97,9 +119,10 @@ namespace Script {
       }
     }
     else if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.A, fc.KEYBOARD_CODE.ARROW_LEFT])) {
-      if (!isWalking && !isJumping){
+      if (!isWalking && !isJumping) {
         marioSpriteNode.setAnimation(animationWalk);
-        isWalking = true;   
+        currentAnimation = animationWalk;
+        isWalking = true;
       }
       marioTransformComponent.mtxLocal.translateX(-deltaTime * marioWalkSpeed);
       if (isFacingRight) {
@@ -107,17 +130,59 @@ namespace Script {
         isFacingRight = false;
       }
     }
-    else if(!isJumping) {
+    else if (!isJumping && !isWalking) {
       marioSpriteNode.setAnimation(animationStand);
+      currentAnimation = animationStand;
+    }
+    else {
       isWalking = false;
     }
-    marioWalkSpeed = 5;
+    marioWalkSpeed = 4;
     marioSpriteNode.framerate = 15;
-    viewport.draw();
-
+    checkCollision();
+    //cmpCamera.mtxPivot.translation = new ƒ.Vector3(-pos.x, 1.0, -10);
+    updateCamera();
+    viewport.draw(); 
   }
 
-  async function hndLoad(_event: Event): Promise<void> {
+  function updateCamera(): void {
+    let pos: fc.Vector3 = marioTransformComponent.mtxLocal.translation;
+    let origin: fc.Vector3 = cmpCamera.mtxPivot.translation;
+    cmpCamera.mtxPivot.translation = new fc.Vector3(- pos.x,origin.y,origin.z);
+  }
+
+  function loadJumpAudio(){
+    jumpAudio = new ƒ.Audio("./Audio/jumpAudio.wav");
+    cmpAudioMario = new ƒ.ComponentAudio(jumpAudio, false, false);
+    cmpAudioMario.connect(true);
+    cmpAudioMario.volume = 1;
+  }
+
+  function checkCollision(): void {
+    let floors: fc.Node[] = viewport.getBranch().getChildrenByName("BaseFloor")[0].getChildrenByName("10x2");
+    for (let eightByTwo: number = 0; eightByTwo < floors.length; eightByTwo++){
+      let currentFloorChunks: fc.Node[] = floors[eightByTwo].getChildrenByName("GroundFloor");
+      for (let singleChunk: number = 0; singleChunk < currentFloorChunks.length; singleChunk++) {
+        let singleBlocks: fc.Node[] = currentFloorChunks[singleChunk].getChildrenByName("FloorPosition");
+        for(let block: number = 0; block < singleBlocks.length; block++) {
+          let currentBlock: fc.Node = singleBlocks[block];
+          if(Math.abs(pos.x - currentBlock.mtxWorld.translation.x) < 0.5){
+            let blockPos: fc.Vector3 = currentBlock.mtxWorld.translation;
+            let blockMargin = blockPos.y + 1;
+            if(pos.y < blockMargin){
+              pos.y = blockMargin;
+              marioTransform.mtxLocal.translation = blockPos;
+              currentFloorHeight = blockMargin;
+              marioVelocityY = 0;
+            }
+          }
+        }
+      }
+    }
+  }
+
+
+  async function createAnimations(_event: Event): Promise<void> {
 
     let imgSpriteSheetWalk: fc.TextureImage = new fc.TextureImage();
     await imgSpriteSheetWalk.load("./Textures/mariowalkx16Image.png");
@@ -137,7 +202,7 @@ namespace Script {
 
     animationWalk = new ƒAid.SpriteSheetAnimation("Walk", coatWalk);
     animationWalk.generateByGrid(fc.Rectangle.GET(0, 0, 15, 16), 3, 16, fc.ORIGIN2D.BOTTOMCENTER, fc.Vector2.X(16));
-  
+
     animationStand = new ƒAid.SpriteSheetAnimation("Stand", coatStand);
     animationStand.generateByGrid(fc.Rectangle.GET(0, 0, 14, 16), 1, 16, fc.ORIGIN2D.BOTTOMCENTER, fc.Vector2.X(16));
 
@@ -161,11 +226,12 @@ namespace Script {
     goombaSpriteNode.setAnimation(animationGoomba);
     goombaSpriteNode.setFrameDirection(1);
     goombaSpriteNode.mtxLocal.translateY(-0.5);
+    goombaSpriteNode.mtxLocal.translateX(4);
     goombaSpriteNode.framerate = 2;
-    for(let i:number = 0; i < 2; i++){
+    for (let i: number = 0; i < 2; i++) {
       goombaNodes[i].removeAllChildren();
       goombaNodes[i].addChild(goombaSpriteNode);
-      goombaNodes[i].mtxLocal.translateX(i+1);
+      goombaNodes[i].mtxLocal.translateX(i + 1);
     }
     goombaSpriteNode.removeAllChildren();
     goombaSpriteNode.addChild(marioSpriteNode);

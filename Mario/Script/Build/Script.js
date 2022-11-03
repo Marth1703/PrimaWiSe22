@@ -42,7 +42,6 @@ var Script;
     var ƒAid = FudgeAid;
     fc.Debug.info("Main Program Template running!");
     let viewport;
-    let deltaTime;
     let pos;
     let marioSpriteNode;
     let goombaSpriteNode;
@@ -52,14 +51,18 @@ var Script;
     let marioTransformComponent;
     let enemiesNodes;
     let goombaNodes;
-    let gravity = -2.5;
+    let gravity = -90;
     let marioWalkSpeed = 5;
     let marioVelocityY = 0;
-    let marioJumpHeight = 0.5;
+    let marioJumpHeight = 18.5;
     let animationWalk;
     let animationStand;
     let animationGoomba;
     let animationJump;
+    let currentAnimation;
+    let cmpCamera;
+    let cmpAudioMario;
+    let jumpAudio;
     function start(_event) {
         viewport = _event.detail;
         fc.Loop.addEventListener("loopFrame" /* fc.EVENT.LOOP_FRAME */, update);
@@ -73,44 +76,58 @@ var Script;
         goombaNodes = enemiesNodes.getChildren();
         marioTransformComponent = marioTransform.getComponent(fc.ComponentTransform);
         console.log("Mario:");
-        hndLoad(_event);
+        createAnimations(_event);
+        // let cmpCamera: fc.ComponentCamera = branch.getComponent(fc.ComponentCamera);
+        // cmpCamera.mtxPivot.translation = new ƒ.Vector3(0, 1.2, -7);
+        cmpCamera = viewport.camera;
+        let cmpAudio = branch.getComponent(fc.ComponentAudio);
+        cmpAudio.volume = 1;
+        loadJumpAudio();
     }
     let isFacingRight = true;
     let isWalking = false;
     let isJumping = false;
     let alreadyJumped = false;
+    let currentFloorHeight = 0;
     function update(_event) {
-        deltaTime = fc.Loop.timeFrameGame / 1000;
+        let deltaTime = fc.Loop.timeFrameGame / 1000;
         marioVelocityY += gravity * deltaTime;
-        marioTransformComponent.mtxLocal.translateY(marioVelocityY);
         pos = marioTransformComponent.mtxLocal.translation;
         if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.SPACE]) && !isJumping) {
             if (!alreadyJumped) {
                 marioVelocityY = marioJumpHeight;
                 isJumping = true;
                 alreadyJumped = true;
+                cmpAudioMario.play(true);
+                currentFloorHeight = -10;
             }
         }
         else if (!fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.SPACE])) {
             alreadyJumped = false;
         }
-        if (pos.y + marioVelocityY > 0) {
+        if (pos.y + marioVelocityY > currentFloorHeight) {
             marioSpriteNode.setAnimation(animationJump);
-            marioTransformComponent.mtxLocal.translateY(marioVelocityY * deltaTime);
+            currentAnimation = animationJump;
         }
-        else {
+        else if (pos.y <= currentFloorHeight) {
             marioVelocityY = 0;
-            pos.y = 0;
+            pos.y = currentFloorHeight;
             marioTransformComponent.mtxLocal.translation = pos;
             isJumping = false;
+            if (currentAnimation != animationWalk) {
+                marioSpriteNode.setAnimation(animationWalk);
+                currentAnimation = animationWalk;
+            }
         }
+        marioTransformComponent.mtxLocal.translateY(marioVelocityY * deltaTime);
         if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.SHIFT_LEFT])) {
-            marioWalkSpeed = 10;
+            marioWalkSpeed = 8;
             marioSpriteNode.framerate = 30;
         }
         if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.D, fc.KEYBOARD_CODE.ARROW_RIGHT])) {
             if (!isWalking && !isJumping) {
                 marioSpriteNode.setAnimation(animationWalk);
+                currentAnimation = animationWalk;
                 isWalking = true;
             }
             marioTransformComponent.mtxLocal.translateX(deltaTime * marioWalkSpeed);
@@ -122,6 +139,7 @@ var Script;
         else if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.A, fc.KEYBOARD_CODE.ARROW_LEFT])) {
             if (!isWalking && !isJumping) {
                 marioSpriteNode.setAnimation(animationWalk);
+                currentAnimation = animationWalk;
                 isWalking = true;
             }
             marioTransformComponent.mtxLocal.translateX(-deltaTime * marioWalkSpeed);
@@ -130,15 +148,54 @@ var Script;
                 isFacingRight = false;
             }
         }
-        else if (!isJumping) {
+        else if (!isJumping && !isWalking) {
             marioSpriteNode.setAnimation(animationStand);
+            currentAnimation = animationStand;
+        }
+        else {
             isWalking = false;
         }
-        marioWalkSpeed = 5;
+        marioWalkSpeed = 4;
         marioSpriteNode.framerate = 15;
+        checkCollision();
+        //cmpCamera.mtxPivot.translation = new ƒ.Vector3(-pos.x, 1.0, -10);
+        updateCamera();
         viewport.draw();
     }
-    async function hndLoad(_event) {
+    function updateCamera() {
+        let pos = marioTransformComponent.mtxLocal.translation;
+        let origin = cmpCamera.mtxPivot.translation;
+        cmpCamera.mtxPivot.translation = new fc.Vector3(-pos.x, origin.y, origin.z);
+    }
+    function loadJumpAudio() {
+        jumpAudio = new ƒ.Audio("./Audio/jumpAudio.wav");
+        cmpAudioMario = new ƒ.ComponentAudio(jumpAudio, false, false);
+        cmpAudioMario.connect(true);
+        cmpAudioMario.volume = 1;
+    }
+    function checkCollision() {
+        let floors = viewport.getBranch().getChildrenByName("BaseFloor")[0].getChildrenByName("10x2");
+        for (let eightByTwo = 0; eightByTwo < floors.length; eightByTwo++) {
+            let currentFloorChunks = floors[eightByTwo].getChildrenByName("GroundFloor");
+            for (let singleChunk = 0; singleChunk < currentFloorChunks.length; singleChunk++) {
+                let singleBlocks = currentFloorChunks[singleChunk].getChildrenByName("FloorPosition");
+                for (let block = 0; block < singleBlocks.length; block++) {
+                    let currentBlock = singleBlocks[block];
+                    if (Math.abs(pos.x - currentBlock.mtxWorld.translation.x) < 0.5) {
+                        let blockPos = currentBlock.mtxWorld.translation;
+                        let blockMargin = blockPos.y + 1;
+                        if (pos.y < blockMargin) {
+                            pos.y = blockMargin;
+                            marioTransform.mtxLocal.translation = blockPos;
+                            currentFloorHeight = blockMargin;
+                            marioVelocityY = 0;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    async function createAnimations(_event) {
         let imgSpriteSheetWalk = new fc.TextureImage();
         await imgSpriteSheetWalk.load("./Textures/mariowalkx16Image.png");
         let coatWalk = new fc.CoatTextured(undefined, imgSpriteSheetWalk);
@@ -172,6 +229,7 @@ var Script;
         goombaSpriteNode.setAnimation(animationGoomba);
         goombaSpriteNode.setFrameDirection(1);
         goombaSpriteNode.mtxLocal.translateY(-0.5);
+        goombaSpriteNode.mtxLocal.translateX(4);
         goombaSpriteNode.framerate = 2;
         for (let i = 0; i < 2; i++) {
             goombaNodes[i].removeAllChildren();

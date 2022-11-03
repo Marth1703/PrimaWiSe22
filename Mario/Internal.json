@@ -150,7 +150,19 @@
     "ƒ.Graph": {
       "name": "Level1",
       "active": true,
-      "components": {},
+      "components": {
+        "ComponentAudio": [
+          {
+            "ƒ.ComponentAudio": {
+              "active": true,
+              "idResource": "Audio|2022-10-27T12:35:15.411Z|22292",
+              "playing": false,
+              "loop": false,
+              "volume": 1
+            }
+          }
+        ]
+      },
       "children": [
         {
           "ƒ.Node": {
@@ -253,7 +265,7 @@
             "children": [
               {
                 "ƒ.Node": {
-                  "name": "8x2",
+                  "name": "10x2",
                   "active": true,
                   "components": {
                     "ComponentTransform": [
@@ -1678,7 +1690,7 @@
               },
               {
                 "ƒ.Node": {
-                  "name": "8x2",
+                  "name": "10x2",
                   "active": true,
                   "components": {
                     "ComponentTransform": [
@@ -3103,7 +3115,7 @@
               },
               {
                 "ƒ.Node": {
-                  "name": "8x2",
+                  "name": "10x2",
                   "active": true,
                   "components": {
                     "ComponentTransform": [
@@ -4799,6 +4811,14 @@
       ],
       "idResource": "Graph|2022-10-11T12:42:57.764Z|43454",
       "type": "Graph"
+    }
+  },
+  "Audio|2022-10-27T12:35:15.411Z|22292": {
+    "ƒ.Audio": {
+      "url": "Audio\\OverworldTheme.mp3",
+      "idResource": "Audio|2022-10-27T12:35:15.411Z|22292",
+      "name": "Audio\\OverworldTheme.mp3",
+      "type": "Audio"
     }
   }
 }

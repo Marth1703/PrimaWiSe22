@@ -61,6 +61,7 @@ async function startInteractiveViewport(_graphId)/* : void */ {
   // setup audio
   let cmpListener/* : ƒ.ComponentAudioListener */ = new ƒ.ComponentAudioListener();
   cmpCamera.node.addComponent(cmpListener);
+  cmpCamera.mtxPivot.translation = new ƒ.Vector3(0, 1.0, -10);
   ƒ.AudioManager.default.listenWith(cmpListener);
   ƒ.AudioManager.default.listenTo(graph);
   ƒ.Debug.log("Audio:", ƒ.AudioManager.default);
