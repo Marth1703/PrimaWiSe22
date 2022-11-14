@@ -1,7 +1,6 @@
 namespace Script {
   import fc = FudgeCore;
   import ƒAid = FudgeAid;
-  fc.Debug.info("Main Program Template running!");
 
   let viewport: fc.Viewport;
   let pos: fc.Vector3;
@@ -17,7 +16,7 @@ namespace Script {
   let enemiesNodes: fc.Node;
   let goombaNodes: fc.Node[];
 
-  let gravity: number = -90;
+  export let gravity: number = -90;
   let marioWalkSpeed: number = 5;
   let marioVelocityY: number = 0;
   let marioJumpHeight: number = 18.5;
@@ -38,16 +37,13 @@ namespace Script {
     viewport = _event.detail;
     fc.Loop.addEventListener(fc.EVENT.LOOP_FRAME, update);
     fc.Loop.start();  // start the game loop to continously draw the viewport, update the audiosystem and drive the physics i/a
-    console.log(viewport);
     let branch: fc.Node = viewport.getBranch();
-    console.log(branch);
     marioTransform = branch.getChildrenByName("MarioTransform")[0];
     marioNode = marioTransform.getChildrenByName("Mario")[0];
 
     enemiesNodes = branch.getChildrenByName("Enemies")[0];
     goombaNodes = enemiesNodes.getChildren();
     marioTransformComponent = marioTransform.getComponent(fc.ComponentTransform);
-    console.log("Mario:");
     createAnimations(_event);
 
     // let cmpCamera: fc.ComponentCamera = branch.getComponent(fc.ComponentCamera);

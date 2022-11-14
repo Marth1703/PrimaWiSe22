@@ -1,46 +1,110 @@
 "use strict";
 var Script;
 (function (Script) {
-    var ƒ = FudgeCore;
-    ƒ.Project.registerScriptNamespace(Script); // Register the namespace to FUDGE for serialization
-    class CustomComponentScript extends ƒ.ComponentScript {
+    var fc = FudgeCore;
+    var ƒAid = FudgeAid;
+    let ACTION;
+    (function (ACTION) {
+        ACTION[ACTION["IDLE"] = 0] = "IDLE";
+        ACTION[ACTION["WALK"] = 1] = "WALK";
+        ACTION[ACTION["SPRINT"] = 2] = "SPRINT";
+    })(ACTION = Script.ACTION || (Script.ACTION = {}));
+    class Avatar extends ƒAid.NodeSprite {
+        speedWalk = .9;
+        speedSprint = 2;
+        ySpeed = 0;
+        xSpeed = 0;
+        animationCurrent;
+        animWalk;
+        animJump;
+        constructor() {
+            super("AvatarInstance");
+            this.addComponent(new fc.ComponentTransform());
+        }
+        update(_deltaTime) {
+            this.ySpeed -= Script.gravity * _deltaTime;
+            let yOffset = this.ySpeed * _deltaTime;
+            this.mtxLocal.translateY(yOffset);
+            this.mtxLocal.translateX(this.xSpeed * _deltaTime, true);
+        }
+        act(_action) {
+            let animation;
+            this.xSpeed = 0;
+            switch (_action) {
+                case ACTION.WALK:
+                    this.xSpeed = this.speedWalk;
+                    animation = this.animWalk;
+                    break;
+                case ACTION.SPRINT:
+                    this.xSpeed = this.speedSprint;
+                    break;
+                case ACTION.IDLE:
+                    this.showFrame(0);
+                    animation = this.animWalk;
+                    break;
+            }
+            if (animation != this.animationCurrent) {
+                this.setAnimation(animation);
+                this.animationCurrent = animation;
+            }
+        }
+        async initializeAnimations(_imgSpriteSheet) {
+            let coat = new fc.CoatTextured(undefined, _imgSpriteSheet);
+            this.animWalk = new ƒAid.SpriteSheetAnimation("Walk", coat);
+            this.animWalk.generateByGrid(fc.Rectangle.GET(0, 0, 15, 16), 3, 16, fc.ORIGIN2D.BOTTOMCENTER, fc.Vector2.X(16));
+            this.animJump = new ƒAid.SpriteSheetAnimation("Jump", coat);
+            this.animJump.generateByGrid(fc.Rectangle.GET(0, 0, 16, 16), 1, 16, fc.ORIGIN2D.BOTTOMCENTER, fc.Vector2.X(16));
+            this.framerate = 20;
+        }
+    }
+    Script.Avatar = Avatar;
+})(Script || (Script = {}));
+var Script;
+(function (Script) {
+    var fc = FudgeCore;
+    fc.Project.registerScriptNamespace(Script); // Register the namespace to FUDGE for serialization
+    class CubeRotatorScript extends fc.ComponentScript {
         // Register the script as component for use in the editor via drag&drop
-        static iSubclass = ƒ.Component.registerSubclass(CustomComponentScript);
+        static iSubclass = fc.Component.registerSubclass(CubeRotatorScript);
         // Properties may be mutated by users in the editor via the automatically created user interface
         message = "CustomComponentScript added to ";
+        speed = 1;
         constructor() {
             super();
             // Don't start when running in editor
-            if (ƒ.Project.mode == ƒ.MODE.EDITOR)
+            if (fc.Project.mode == fc.MODE.EDITOR)
                 return;
             // Listen to this component being added to or removed from a node
-            this.addEventListener("componentAdd" /* ƒ.EVENT.COMPONENT_ADD */, this.hndEvent);
-            this.addEventListener("componentRemove" /* ƒ.EVENT.COMPONENT_REMOVE */, this.hndEvent);
-            this.addEventListener("nodeDeserialized" /* ƒ.EVENT.NODE_DESERIALIZED */, this.hndEvent);
+            this.addEventListener("componentAdd" /* fc.EVENT.COMPONENT_ADD */, this.hndEvent);
+            this.addEventListener("componentRemove" /* fc.EVENT.COMPONENT_REMOVE */, this.hndEvent);
+            this.addEventListener("nodeDeserialized" /* fc.EVENT.NODE_DESERIALIZED */, this.hndEvent);
         }
         // Activate the functions of this component as response to events
         hndEvent = (_event) => {
             switch (_event.type) {
-                case "componentAdd" /* ƒ.EVENT.COMPONENT_ADD */:
-                    ƒ.Debug.log(this.message, this.node);
+                case "componentAdd" /* fc.EVENT.COMPONENT_ADD */:
+                    fc.Debug.log(this.message, this.node);
+                    fc.Loop.addEventListener("loopFrame" /* fc.EVENT.LOOP_FRAME */, this.rotateCube);
                     break;
-                case "componentRemove" /* ƒ.EVENT.COMPONENT_REMOVE */:
-                    this.removeEventListener("componentAdd" /* ƒ.EVENT.COMPONENT_ADD */, this.hndEvent);
-                    this.removeEventListener("componentRemove" /* ƒ.EVENT.COMPONENT_REMOVE */, this.hndEvent);
+                case "componentRemove" /* fc.EVENT.COMPONENT_REMOVE */:
+                    this.removeEventListener("componentAdd" /* fc.EVENT.COMPONENT_ADD */, this.hndEvent);
+                    this.removeEventListener("componentRemove" /* fc.EVENT.COMPONENT_REMOVE */, this.hndEvent);
                     break;
-                case "nodeDeserialized" /* ƒ.EVENT.NODE_DESERIALIZED */:
+                case "nodeDeserialized" /* fc.EVENT.NODE_DESERIALIZED */:
                     // if deserialized the node is now fully reconstructed and access to all its components and children is possible
                     break;
             }
         };
+        rotateCube = (_event) => {
+            this.node.mtxLocal.rotateY(this.speed);
+        };
     }
-    Script.CustomComponentScript = CustomComponentScript;
+    Script.CubeRotatorScript = CubeRotatorScript;
 })(Script || (Script = {}));
 var Script;
 (function (Script) {
     var fc = FudgeCore;
     var ƒAid = FudgeAid;
-    fc.Debug.info("Main Program Template running!");
     let viewport;
     let pos;
     let marioSpriteNode;
@@ -51,7 +115,7 @@ var Script;
     let marioTransformComponent;
     let enemiesNodes;
     let goombaNodes;
-    let gravity = -90;
+    Script.gravity = -90;
     let marioWalkSpeed = 5;
     let marioVelocityY = 0;
     let marioJumpHeight = 18.5;
@@ -67,15 +131,12 @@ var Script;
         viewport = _event.detail;
         fc.Loop.addEventListener("loopFrame" /* fc.EVENT.LOOP_FRAME */, update);
         fc.Loop.start(); // start the game loop to continously draw the viewport, update the audiosystem and drive the physics i/a
-        console.log(viewport);
         let branch = viewport.getBranch();
-        console.log(branch);
         marioTransform = branch.getChildrenByName("MarioTransform")[0];
         marioNode = marioTransform.getChildrenByName("Mario")[0];
         enemiesNodes = branch.getChildrenByName("Enemies")[0];
         goombaNodes = enemiesNodes.getChildren();
         marioTransformComponent = marioTransform.getComponent(fc.ComponentTransform);
-        console.log("Mario:");
         createAnimations(_event);
         // let cmpCamera: fc.ComponentCamera = branch.getComponent(fc.ComponentCamera);
         // cmpCamera.mtxPivot.translation = new ƒ.Vector3(0, 1.2, -7);
@@ -91,7 +152,7 @@ var Script;
     let currentFloorHeight = 0;
     function update(_event) {
         let deltaTime = fc.Loop.timeFrameGame / 1000;
-        marioVelocityY += gravity * deltaTime;
+        marioVelocityY += Script.gravity * deltaTime;
         pos = marioTransformComponent.mtxLocal.translation;
         if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.SPACE]) && !isJumping) {
             if (!alreadyJumped) {
