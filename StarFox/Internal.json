@@ -45,7 +45,7 @@
       }
     }
   },
-  "Graph|2022-11-16T21:39:17.375Z|20115": {
+  "Graph|2022-11-23T15:23:03.384Z|57831": {
     "ƒ.Graph": {
       "name": "Level",
       "active": true,
@@ -63,7 +63,49 @@
                     "pivot": {
                       "translation": "[0, 0, 0]",
                       "rotation": "[0, 0, 0]",
-                      "scaling": "[589, 6, 589]"
+                      "scaling": "[811, 5, 811]"
+                    },
+                    "Component": {
+                      "active": true
+                    }
+                  }
+                }
+              ],
+              "ComponentMaterial": [
+                {
+                  "ƒ.ComponentMaterial": {
+                    "sortForAlpha": false,
+                    "clrPrimary": "[1, 1, 1, 1]",
+                    "clrSecondary": "[1, 1, 1, 1]",
+                    "pivot": {
+                      "translation": "[0, 0]",
+                      "rotation": 0,
+                      "scaling": "[1, 1]"
+                    },
+                    "Component": {
+                      "active": true
+                    },
+                    "idMaterial": "Material|2022-11-17T14:22:25.992Z|28043"
+                  }
+                }
+              ]
+            },
+            "children": []
+          }
+        },
+        {
+          "ƒ.Node": {
+            "name": "Spaceship",
+            "active": true,
+            "components": {
+              "ComponentMesh": [
+                {
+                  "ƒ.ComponentMesh": {
+                    "idMesh": "MeshObj|2022-11-17T14:18:27.105Z|52500",
+                    "pivot": {
+                      "translation": "[0, 0, 0]",
+                      "rotation": "[0, 0, 0]",
+                      "scaling": "[1, 1, 1]"
                     },
                     "Component": {
                       "active": true
@@ -88,24 +130,56 @@
                     "idMaterial": "Material|2022-11-17T14:19:53.489Z|88894"
                   }
                 }
+              ],
+              "ComponentTransform": [
+                {
+                  "ƒ.ComponentTransform": {
+                    "local": {
+                      "translation": "[0, 7, 0]",
+                      "rotation": "[0, 0, 0]",
+                      "scaling": "[1, 1, 1]"
+                    },
+                    "Component": {
+                      "active": true
+                    }
+                  }
+                }
+              ],
+              "StarShipScript": [
+                {
+                  "Script.StarShipScript": {
+                    "active": true,
+                    "message": "CustomComponentScript added to ",
+                    "speed": 1
+                  }
+                }
+              ],
+              "ComponentRigidbody": [
+                {
+                  "ƒ.ComponentRigidbody": {
+                    "initialization": "TO_PIVOT",
+                    "friction": 0.2,
+                    "restitution": 0.2,
+                    "mass": 1,
+                    "dampTranslation": 0.1,
+                    "dampRotation": 0.1,
+                    "effectGravity": 0,
+                    "typeBody": "DYNAMIC",
+                    "typeCollider": "CUBE",
+                    "isTrigger": false,
+                    "id": 0,
+                    "pivot": {
+                      "translation": "[0, 0, 0]",
+                      "rotation": "[0, 0, 0]",
+                      "scaling": "[1, 1, 1]"
+                    },
+                    "Component": {
+                      "active": true
+                    }
+                  }
+                }
               ]
             },
-            "children": []
-          }
-        },
-        {
-          "ƒ.Node": {
-            "name": "Enemies",
-            "active": true,
-            "components": {},
-            "children": []
-          }
-        },
-        {
-          "ƒ.Node": {
-            "name": "Hud",
-            "active": true,
-            "components": {},
             "children": []
           }
         },
@@ -124,7 +198,7 @@
                     },
                     "light": {
                       "ƒ.LightAmbient": {
-                        "color": "[0.8392156862745098, 0.8392156862745098, 0.8392156862745098, 1]"
+                        "color": "[0.611764705882353, 0.611764705882353, 0.611764705882353, 1]"
                       }
                     },
                     "Component": {
@@ -136,7 +210,7 @@
                   "ƒ.ComponentLight": {
                     "pivot": {
                       "translation": "[0, 0, 0]",
-                      "rotation": "[10, 0, 0]",
+                      "rotation": "[9, 0, 0]",
                       "scaling": "[1, 1, 1]"
                     },
                     "light": {
@@ -153,92 +227,10 @@
             },
             "children": []
           }
-        },
-        {
-          "ƒ.Node": {
-            "name": "SpaceshipPosition",
-            "active": true,
-            "components": {
-              "ComponentTransform": [
-                {
-                  "ƒ.ComponentTransform": {
-                    "local": {
-                      "translation": "[0, 12, 0]",
-                      "rotation": "[0, 0, 0]",
-                      "scaling": "[1, 1, 1]"
-                    },
-                    "Component": {
-                      "active": true
-                    }
-                  }
-                }
-              ]
-            },
-            "children": [
-              {
-                "ƒ.Node": {
-                  "name": "Spaceship",
-                  "active": true,
-                  "components": {
-                    "ComponentMesh": [
-                      {
-                        "ƒ.ComponentMesh": {
-                          "idMesh": "MeshObj|2022-11-17T14:18:27.105Z|52500",
-                          "pivot": {
-                            "translation": "[0, 0, 0]",
-                            "rotation": "[0, 0, 0]",
-                            "scaling": "[1, 1, 1]"
-                          },
-                          "Component": {
-                            "active": true
-                          }
-                        }
-                      }
-                    ],
-                    "ComponentMaterial": [
-                      {
-                        "ƒ.ComponentMaterial": {
-                          "sortForAlpha": false,
-                          "clrPrimary": "[1, 1, 1, 1]",
-                          "clrSecondary": "[1, 1, 1, 1]",
-                          "pivot": {
-                            "translation": "[0, 0]",
-                            "rotation": 0,
-                            "scaling": "[1, 1]"
-                          },
-                          "Component": {
-                            "active": true
-                          },
-                          "idMaterial": "Material|2022-11-17T14:22:25.992Z|28043"
-                        }
-                      }
-                    ]
-                  },
-                  "children": []
-                }
-              }
-            ]
-          }
         }
       ],
-      "idResource": "Graph|2022-11-16T21:39:17.375Z|20115",
+      "idResource": "Graph|2022-11-23T15:23:03.384Z|57831",
       "type": "Graph"
-    }
-  },
-  "MeshObj|2022-11-22T13:35:32.048Z|01306": {
-    "ƒ.MeshObj": {
-      "idResource": "MeshObj|2022-11-22T13:35:32.048Z|01306",
-      "name": "Models\\secondd.obj",
-      "type": "MeshObj",
-      "url": "Models\\secondd.obj"
-    }
-  },
-  "MeshObj|2022-11-22T13:38:44.052Z|98998": {
-    "ƒ.MeshObj": {
-      "idResource": "MeshObj|2022-11-22T13:38:44.052Z|98998",
-      "name": "Models\\thirdd.obj",
-      "type": "MeshObj",
-      "url": "Models\\thirdd.obj"
     }
   }
 }

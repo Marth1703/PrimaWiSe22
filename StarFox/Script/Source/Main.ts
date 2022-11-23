@@ -8,27 +8,29 @@ namespace Script {
 
   let StarshipTransformComponent: fc.ComponentTransform;
 
-  let StarshipSpeed: number;
+  let StarShipRigidComponent: fc.ComponentRigidbody;
+
   document.addEventListener("interactiveViewportStarted", <EventListener>start);
 
   function start(_event: CustomEvent): void {
   
     viewport = _event.detail;
     cmpCamera = viewport.camera;
-    cmpCamera.mtxPivot.rotateY(180);
-
+    
     let branch: fc.Node = viewport.getBranch();
-
-    StarshipTransformComponent = branch.getChildrenByName("SpaceshipPosition")[0].getComponent(fc.ComponentTransform);    
-    StarshipSpeed = 0.1;
+    StarshipTransformComponent = branch.getChildrenByName("Spaceship")[0].getComponent(fc.ComponentTransform);    
+    StarShipRigidComponent = branch.getChildrenByName("Spaceship")[0].getComponent(fc.ComponentRigidbody);
     fc.Loop.start();  // start the game loop to continously draw the viewport, update the audiosystem and drive the physics i/a
     fc.Loop.addEventListener(fc.EVENT.LOOP_FRAME, update);
+    cmpCamera.mtxPivot.translate(new fc.Vector3(0, 15, 30));
+
+    cmpCamera.mtxPivot.rotate(new fc.Vector3(10, 180, 0));
+
   }
 
   function update(_event: Event): void {
-    // ƒ.Physics.simulate();  // if physics is included and used
+    fc.Physics.simulate();  // if physics is included and used
     fc.AudioManager.default.update();
-    StarshipTransformComponent.mtxLocal.translateZ(StarshipSpeed);
     updateCamera();
     viewport.draw();
   }
@@ -36,6 +38,6 @@ namespace Script {
   function updateCamera(): void {
     let pos: fc.Vector3 = StarshipTransformComponent.mtxLocal.translation;
     //let origin: fc.Vector3 = cmpCamera.mtxPivot.translation;
-    cmpCamera.mtxPivot.translation = new fc.Vector3(pos.x, pos.y + 4, -pos.z + 25);
+    cmpCamera.mtxPivot.translation = new fc.Vector3(- pos.x, pos.y + 7, - pos.z + 35);
   }
 }
