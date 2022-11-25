@@ -17,8 +17,23 @@ declare namespace Script {
         static readonly iSubclass: number;
         message: string;
         speed: number;
+        private relativeX;
+        private relativeY;
+        private relativeZ;
+        strafeThrust: number;
+        forwardthrust: number;
         constructor();
         hndEvent: (_event: Event) => void;
         controlShip: (_event: Event) => void;
+        private width;
+        private height;
+        private xAxis;
+        private yAxis;
+        handleMouse: (e: MouseEvent) => void;
+        setRelativeAxes(): void;
+        backwards(): void;
+        thrust(): void;
+        rollLeft(): void;
+        rollRight(): void;
     }
 }

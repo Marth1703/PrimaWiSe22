@@ -58,19 +58,12 @@ var Script;
         StarShipRigidComponent = branch.getChildrenByName("Spaceship")[0].getComponent(fc.ComponentRigidbody);
         fc.Loop.start(); // start the game loop to continously draw the viewport, update the audiosystem and drive the physics i/a
         fc.Loop.addEventListener("loopFrame" /* fc.EVENT.LOOP_FRAME */, update);
-        cmpCamera.mtxPivot.translate(new fc.Vector3(0, 15, 30));
-        cmpCamera.mtxPivot.rotate(new fc.Vector3(10, 180, 0));
+        cmpCamera.mtxPivot.translate(new fc.Vector3(0, 4, -30));
     }
     function update(_event) {
         fc.Physics.simulate(); // if physics is included and used
         fc.AudioManager.default.update();
-        updateCamera();
         viewport.draw();
-    }
-    function updateCamera() {
-        let pos = StarshipTransformComponent.mtxLocal.translation;
-        //let origin: fc.Vector3 = cmpCamera.mtxPivot.translation;
-        cmpCamera.mtxPivot.translation = new fc.Vector3(-pos.x, pos.y + 7, -pos.z + 35);
     }
 })(Script || (Script = {}));
 var Script;
@@ -87,6 +80,11 @@ var Script;
         // Properties may be mutated by users in the editor via the automatically created user interface
         message = "CustomComponentScript added to ";
         speed = 1;
+        relativeX;
+        relativeY;
+        relativeZ;
+        strafeThrust = 2000;
+        forwardthrust = 5000;
         constructor() {
             super();
             // Don't start when running in editor
@@ -103,6 +101,7 @@ var Script;
                 case "componentAdd" /* fc.EVENT.COMPONENT_ADD */:
                     fc.Debug.log(this.message, this.node);
                     fc.Loop.addEventListener("loopFrame" /* fc.EVENT.LOOP_FRAME */, this.controlShip);
+                    window.addEventListener("mousemove", this.handleMouse);
                     break;
                 case "componentRemove" /* fc.EVENT.COMPONENT_REMOVE */:
                     this.removeEventListener("componentAdd" /* fc.EVENT.COMPONENT_ADD */, this.hndEvent);
@@ -116,32 +115,55 @@ var Script;
         controlShip = (_event) => {
             StarShipRigidComponent = this.node.getComponent(fc.ComponentRigidbody);
             StarshipTransformComponent = this.node.getComponent(fc.ComponentTransform);
-            StarshipTransformComponent.mtxLocal.translateZ(StarshipSpeed);
-            if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.W, fc.KEYBOARD_CODE.ARROW_UP])) {
-                let forceVector = new fc.Vector3(0, 0, 10);
-                StarShipRigidComponent.applyForce(forceVector);
+            this.setRelativeAxes();
+            if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.W])) {
+                this.thrust();
+                //StarShipRigidComponent.applyTorque(fc.Vector3.SCALE(this.relativeX, 1));
             }
-            else if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.S, fc.KEYBOARD_CODE.ARROW_DOWN])) {
-                let forceVector = new fc.Vector3(0, 0, -10);
-                StarShipRigidComponent.applyForce(forceVector);
+            if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.S])) {
+                this.backwards();
+                //StarShipRigidComponent.applyTorque(fc.Vector3.SCALE(this.relativeX, -1));
             }
-            if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.D, fc.KEYBOARD_CODE.ARROW_RIGHT])) {
-                let forceVector = new fc.Vector3(-30, 0, 0);
-                let angularVector = new fc.Vector3(0, 0, 0.01);
-                StarShipRigidComponent.applyForce(forceVector);
-                if (StarShipRigidComponent.getAngularVelocity().z < 0.1) {
-                    StarShipRigidComponent.addAngularVelocity(angularVector);
-                }
+            if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.A])) {
+                this.rollLeft();
             }
-            else if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.A, fc.KEYBOARD_CODE.ARROW_LEFT])) {
-                let forceVector = new fc.Vector3(30, 0, 0);
-                let angularVector = new fc.Vector3(0, 0, -0.01);
-                StarShipRigidComponent.applyForce(forceVector);
-                if (StarShipRigidComponent.getAngularVelocity().z > -0.1) {
-                    StarShipRigidComponent.addAngularVelocity(angularVector);
-                }
+            if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.D])) {
+                this.rollRight();
             }
+            StarShipRigidComponent.applyTorque(new fc.Vector3(0, this.xAxis * -5, 0));
+            StarShipRigidComponent.applyTorque(fc.Vector3.SCALE(this.relativeX, this.yAxis * 1.5));
+            StarShipRigidComponent.applyTorque(fc.Vector3.SCALE(this.relativeZ, this.xAxis));
         };
+        width = 0;
+        height = 0;
+        xAxis = 0;
+        yAxis = 0;
+        handleMouse = (e) => {
+            this.width = window.innerWidth;
+            this.height = window.innerHeight;
+            let mousePositionY = e.clientY;
+            let mousePositionX = e.clientX;
+            this.xAxis = 2 * (mousePositionX / this.width) - 1;
+            this.yAxis = 2 * (mousePositionY / this.height) - 1.2;
+        };
+        setRelativeAxes() {
+            this.relativeZ = fc.Vector3.TRANSFORMATION(new fc.Vector3(0, 0, 5), fc.Matrix4x4.ROTATION(this.node.mtxWorld.rotation));
+            this.relativeY = fc.Vector3.TRANSFORMATION(new fc.Vector3(0, 5, 0), fc.Matrix4x4.ROTATION(this.node.mtxWorld.rotation));
+            this.relativeX = fc.Vector3.TRANSFORMATION(new fc.Vector3(5, 0, 0), fc.Matrix4x4.ROTATION(this.node.mtxWorld.rotation));
+        }
+        backwards() {
+            StarShipRigidComponent.applyForce(fc.Vector3.SCALE(this.relativeZ, -this.forwardthrust));
+        }
+        thrust() {
+            let scaledRotatedDirection = fc.Vector3.SCALE(this.relativeZ, this.forwardthrust);
+            StarShipRigidComponent.applyForce(scaledRotatedDirection);
+        }
+        rollLeft() {
+            StarShipRigidComponent.applyTorque(fc.Vector3.SCALE(this.relativeZ, -2));
+        }
+        rollRight() {
+            StarShipRigidComponent.applyTorque(fc.Vector3.SCALE(this.relativeZ, 2));
+        }
     }
     Script.StarShipScript = StarShipScript;
 })(Script || (Script = {}));

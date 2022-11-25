@@ -18,6 +18,14 @@ namespace Script {
   
       public speed: number = 1;
   
+
+      private relativeX: fc.Vector3;
+      private relativeY: fc.Vector3;
+      private relativeZ: fc.Vector3;
+
+      public strafeThrust: number = 2000;
+      public forwardthrust: number = 5000;
+
       constructor() {
         super();
   
@@ -37,6 +45,7 @@ namespace Script {
           case fc.EVENT.COMPONENT_ADD:
             fc.Debug.log(this.message, this.node);
             fc.Loop.addEventListener(fc.EVENT.LOOP_FRAME, this.controlShip)
+            window.addEventListener("mousemove", this.handleMouse);
             break;
           case fc.EVENT.COMPONENT_REMOVE:
             this.removeEventListener(fc.EVENT.COMPONENT_ADD, this.hndEvent);
@@ -51,36 +60,71 @@ namespace Script {
       public controlShip = (_event: Event): void => {
         StarShipRigidComponent = this.node.getComponent(fc.ComponentRigidbody);
         StarshipTransformComponent = this.node.getComponent(fc.ComponentTransform);
-        StarshipTransformComponent.mtxLocal.translateZ(StarshipSpeed);
+        this.setRelativeAxes();
 
-        if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.W, fc.KEYBOARD_CODE.ARROW_UP])) {
-            let forceVector: fc.Vector3 = new fc.Vector3(0, 0, 10);
-            StarShipRigidComponent.applyForce(forceVector);
+        if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.W])) {
+            this.thrust();
+            //StarShipRigidComponent.applyTorque(fc.Vector3.SCALE(this.relativeX, 1));
         }
+  
+        if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.S])) {
+            this.backwards();
+            //StarShipRigidComponent.applyTorque(fc.Vector3.SCALE(this.relativeX, -1));
+        }
+  
+        if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.A])) {
+          this.rollLeft();
+        }
+  
+        if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.D])) {
+          this.rollRight();
+        }
+  
+        StarShipRigidComponent.applyTorque(new fc.Vector3(0, this.xAxis * -5, 0));
+        StarShipRigidComponent.applyTorque(fc.Vector3.SCALE(this.relativeX, this.yAxis * 1.5));
+        StarShipRigidComponent.applyTorque(fc.Vector3.SCALE(this.relativeZ, this.xAxis))
+        
+      }
 
-        else if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.S, fc.KEYBOARD_CODE.ARROW_DOWN])) {
-            let forceVector: fc.Vector3 = new fc.Vector3(0, 0, -10);
-            StarShipRigidComponent.applyForce(forceVector);
-        }
+    private width: number = 0;
+    private height: number = 0;
+    private xAxis: number = 0;
+    private yAxis: number = 0;
 
-        if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.D, fc.KEYBOARD_CODE.ARROW_RIGHT])) {
-            let forceVector: fc.Vector3 = new fc.Vector3(-30, 0, 0);
-            let angularVector: fc.Vector3 = new fc.Vector3(0, 0, 0.01);
-            StarShipRigidComponent.applyForce(forceVector);
-            
-            if (StarShipRigidComponent.getAngularVelocity().z < 0.1){
-                StarShipRigidComponent.addAngularVelocity(angularVector);
-            }
-        }
+    handleMouse = (e: MouseEvent): void => {
+      this.width = window.innerWidth;
+      this.height = window.innerHeight;
+      let mousePositionY: number = e.clientY;
+      let mousePositionX: number = e.clientX;
 
-        else if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.A, fc.KEYBOARD_CODE.ARROW_LEFT])) {
-            let forceVector: fc.Vector3 = new fc.Vector3(30, 0, 0);
-            let angularVector: fc.Vector3 = new fc.Vector3(0, 0, -0.01);
-            StarShipRigidComponent.applyForce(forceVector);
-            if (StarShipRigidComponent.getAngularVelocity().z > -0.1 ){
-                StarShipRigidComponent.addAngularVelocity(angularVector);
-            }
-        }
+      this.xAxis = 2 * (mousePositionX / this.width) - 1;
+      this.yAxis = 2 * (mousePositionY / this.height) - 1.2;
+        
+    }
+
+      setRelativeAxes(): void {
+        this.relativeZ = fc.Vector3.TRANSFORMATION(new fc.Vector3(0, 0, 5), fc.Matrix4x4.ROTATION(this.node.mtxWorld.rotation));
+        this.relativeY = fc.Vector3.TRANSFORMATION(new fc.Vector3(0, 5, 0), fc.Matrix4x4.ROTATION(this.node.mtxWorld.rotation));
+        this.relativeX = fc.Vector3.TRANSFORMATION(new fc.Vector3(5, 0, 0), fc.Matrix4x4.ROTATION(this.node.mtxWorld.rotation));
+      }
+  
+      backwards(): void {
+        StarShipRigidComponent.applyForce(fc.Vector3.SCALE(this.relativeZ, -this.forwardthrust));
+      }
+  
+      thrust(): void {
+        let scaledRotatedDirection: fc.Vector3 = fc.Vector3.SCALE(this.relativeZ, this.forwardthrust);
+        StarShipRigidComponent.applyForce(scaledRotatedDirection);
+      }
+  
+  
+      rollLeft(): void {
+        StarShipRigidComponent.applyTorque(fc.Vector3.SCALE(this.relativeZ, -2));
+      }
+  
+  
+      rollRight(): void {
+        StarShipRigidComponent.applyTorque(fc.Vector3.SCALE(this.relativeZ, 2))
       }
   
       // protected reduceMutator(_mutator: ƒ.Mutator): void {
