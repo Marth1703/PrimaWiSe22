@@ -18,6 +18,9 @@ namespace Script {
   
       public speed: number = 1;
   
+      private rigidbody: fc.ComponentRigidbody;
+
+      private audioCrash: fc.Audio;
 
       private relativeX: fc.Vector3;
       private relativeY: fc.Vector3;
@@ -45,15 +48,29 @@ namespace Script {
           case fc.EVENT.COMPONENT_ADD:
             fc.Debug.log(this.message, this.node);
             fc.Loop.addEventListener(fc.EVENT.LOOP_FRAME, this.controlShip)
+            fc.Loop.addEventListener(fc.EVENT.LOOP_FRAME, this.update)
             window.addEventListener("mousemove", this.handleMouse);
             break;
           case fc.EVENT.COMPONENT_REMOVE:
             this.removeEventListener(fc.EVENT.COMPONENT_ADD, this.hndEvent);
             this.removeEventListener(fc.EVENT.COMPONENT_REMOVE, this.hndEvent);
             break;
-          case fc.EVENT.NODE_DESERIALIZED:
-            // if deserialized the node is now fully reconstructed and access to all its components and children is possible
+          case fc.EVENT.NODE_DESERIALIZED:          
+            this.rigidbody = this.node.getComponent(fc.ComponentRigidbody)
+            this.rigidbody.addEventListener(fc.EVENT_PHYSICS.COLLISION_ENTER, this.hndCollision);
             break;
+        }
+      }
+
+      private update = (_event: Event): void =>{
+        if(!cmpTerrain){
+          return;
+        }
+        let terrainInfo: fc.TerrainInfo = (<fc.MeshTerrain>cmpTerrain.mesh).getTerrainInfo(this.node.mtxLocal.translation, cmpTerrain.mtxWorld);
+        console.log(terrainInfo.distance);
+        if(terrainInfo.distance < 5){
+          let audioComp: fc.ComponentAudio = this.node.getComponent(fc.ComponentAudio);
+          audioComp.play(true);
         }
       }
   
@@ -73,19 +90,19 @@ namespace Script {
             StarShipRigidComponent.applyTorque(fc.Vector3.SCALE(this.relativeX, -3));
         }
   
-        if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.A])) {
+        if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.ARROW_LEFT])) {
           this.rollLeft();
         }
   
-        if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.D])) {
+        if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.ARROW_RIGHT])) {
           this.rollRight();
         }
 
-        if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.ARROW_LEFT])) {
+        if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.A])) {
           StarShipRigidComponent.applyTorque(fc.Vector3.SCALE(this.relativeY, 3));
         }
   
-        if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.ARROW_RIGHT])) {
+        if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.D])) {
           StarShipRigidComponent.applyTorque(fc.Vector3.SCALE(this.relativeY, -3))
         }
 
@@ -99,6 +116,12 @@ namespace Script {
         // StarShipRigidComponent.applyTorque(fc.Vector3.SCALE(this.relativeZ, this.xAxis))
         
       }
+
+    private hndCollision = (_event: Event): void => {
+      let audioComp: fc.ComponentAudio = this.node.getComponent(fc.ComponentAudio);
+      audioComp.play(true);
+      console.log("Boom");
+    }
 
     private width: number = 0;
     private height: number = 0;
@@ -138,12 +161,12 @@ namespace Script {
   
   
       rollLeft(): void {
-        StarShipRigidComponent.applyTorque(fc.Vector3.SCALE(this.relativeZ, -10));
+        StarShipRigidComponent.applyTorque(fc.Vector3.SCALE(this.relativeZ, -2));
       }
   
   
       rollRight(): void {
-        StarShipRigidComponent.applyTorque(fc.Vector3.SCALE(this.relativeZ, 10))
+        StarShipRigidComponent.applyTorque(fc.Vector3.SCALE(this.relativeZ, 2))
       }
   
       // protected reduceMutator(_mutator: ƒ.Mutator): void {

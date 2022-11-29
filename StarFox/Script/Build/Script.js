@@ -47,6 +47,7 @@ var Script;
     fc.Debug.info("Main Program Template running!");
     let viewport;
     let cmpCamera;
+    let StarShip;
     let StarshipTransformComponent;
     let StarShipRigidComponent;
     document.addEventListener("interactiveViewportStarted", start);
@@ -88,12 +89,14 @@ var Script;
         viewport = _event.detail;
         cmpCamera = viewport.camera;
         let branch = viewport.getBranch();
+        Script.cmpTerrain = branch.getChildrenByName("Floor")[0].getComponent(fc.ComponentMesh);
         StarshipTransformComponent = branch.getChildrenByName("Spaceship")[0].getComponent(fc.ComponentTransform);
         StarShipRigidComponent = branch.getChildrenByName("Spaceship")[0].getComponent(fc.ComponentRigidbody);
         fc.Loop.start(); // start the game loop to continously draw the viewport, update the audiosystem and drive the physics i/a
         fc.Loop.addEventListener("loopFrame" /* fc.EVENT.LOOP_FRAME */, update);
         cmpCamera.mtxPivot.translate(new fc.Vector3(0, 4, -30));
-        generateCubes(300);
+        StarShip = branch.getChildrenByName("Spaceship")[0];
+        generateCubes(50);
     }
     function update(_event) {
         fc.Physics.simulate(); // if physics is included and used
@@ -115,6 +118,8 @@ var Script;
         // Properties may be mutated by users in the editor via the automatically created user interface
         message = "CustomComponentScript added to ";
         speed = 1;
+        rigidbody;
+        audioCrash;
         relativeX;
         relativeY;
         relativeZ;
@@ -136,6 +141,7 @@ var Script;
                 case "componentAdd" /* fc.EVENT.COMPONENT_ADD */:
                     fc.Debug.log(this.message, this.node);
                     fc.Loop.addEventListener("loopFrame" /* fc.EVENT.LOOP_FRAME */, this.controlShip);
+                    fc.Loop.addEventListener("loopFrame" /* fc.EVENT.LOOP_FRAME */, this.update);
                     window.addEventListener("mousemove", this.handleMouse);
                     break;
                 case "componentRemove" /* fc.EVENT.COMPONENT_REMOVE */:
@@ -143,8 +149,20 @@ var Script;
                     this.removeEventListener("componentRemove" /* fc.EVENT.COMPONENT_REMOVE */, this.hndEvent);
                     break;
                 case "nodeDeserialized" /* fc.EVENT.NODE_DESERIALIZED */:
-                    // if deserialized the node is now fully reconstructed and access to all its components and children is possible
+                    this.rigidbody = this.node.getComponent(fc.ComponentRigidbody);
+                    this.rigidbody.addEventListener("ColliderEnteredCollision" /* fc.EVENT_PHYSICS.COLLISION_ENTER */, this.hndCollision);
                     break;
+            }
+        };
+        update = (_event) => {
+            if (!Script.cmpTerrain) {
+                return;
+            }
+            let terrainInfo = Script.cmpTerrain.mesh.getTerrainInfo(this.node.mtxLocal.translation, Script.cmpTerrain.mtxWorld);
+            console.log(terrainInfo.distance);
+            if (terrainInfo.distance < 5) {
+                let audioComp = this.node.getComponent(fc.ComponentAudio);
+                audioComp.play(true);
             }
         };
         controlShip = (_event) => {
@@ -160,16 +178,16 @@ var Script;
                 //this.backwards();
                 StarShipRigidComponent.applyTorque(fc.Vector3.SCALE(this.relativeX, -3));
             }
-            if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.A])) {
+            if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.ARROW_LEFT])) {
                 this.rollLeft();
             }
-            if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.D])) {
+            if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.ARROW_RIGHT])) {
                 this.rollRight();
             }
-            if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.ARROW_LEFT])) {
+            if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.A])) {
                 StarShipRigidComponent.applyTorque(fc.Vector3.SCALE(this.relativeY, 3));
             }
-            if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.ARROW_RIGHT])) {
+            if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.D])) {
                 StarShipRigidComponent.applyTorque(fc.Vector3.SCALE(this.relativeY, -3));
             }
             if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.SHIFT_LEFT])) {
@@ -179,6 +197,11 @@ var Script;
             // StarShipRigidComponent.applyTorque(new fc.Vector3(0, this.xAxis * -6, 0));
             // StarShipRigidComponent.applyTorque(fc.Vector3.SCALE(this.relativeX, this.yAxis * 1.5));
             // StarShipRigidComponent.applyTorque(fc.Vector3.SCALE(this.relativeZ, this.xAxis))
+        };
+        hndCollision = (_event) => {
+            let audioComp = this.node.getComponent(fc.ComponentAudio);
+            audioComp.play(true);
+            console.log("Boom");
         };
         width = 0;
         height = 0;
@@ -209,10 +232,10 @@ var Script;
             StarShipRigidComponent.applyForce(scaledRotatedDirection);
         }
         rollLeft() {
-            StarShipRigidComponent.applyTorque(fc.Vector3.SCALE(this.relativeZ, -10));
+            StarShipRigidComponent.applyTorque(fc.Vector3.SCALE(this.relativeZ, -2));
         }
         rollRight() {
-            StarShipRigidComponent.applyTorque(fc.Vector3.SCALE(this.relativeZ, 10));
+            StarShipRigidComponent.applyTorque(fc.Vector3.SCALE(this.relativeZ, 2));
         }
     }
     Script.StarShipScript = StarShipScript;
