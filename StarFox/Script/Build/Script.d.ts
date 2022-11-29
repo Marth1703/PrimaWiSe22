@@ -33,6 +33,7 @@ declare namespace Script {
         setRelativeAxes(): void;
         backwards(): void;
         thrust(): void;
+        thrustBoost(): void;
         rollLeft(): void;
         rollRight(): void;
     }

@@ -50,6 +50,40 @@ var Script;
     let StarshipTransformComponent;
     let StarShipRigidComponent;
     document.addEventListener("interactiveViewportStarted", start);
+    function generateCubes(n) {
+        let cubeMesh = new fc.MeshCube("cubeMesh");
+        let material = new fc.Material("cubeShader", fc.ShaderLit);
+        let randZ;
+        let randY;
+        let randX;
+        let colorR;
+        let colorG;
+        let colorB;
+        for (let i = 0; i < n; i++) {
+            let nodeCube = new fc.Node("cube" + i);
+            randX = fc.random.getRange(-1000, 1000);
+            randY = fc.random.getRange(15, 30);
+            randZ = fc.random.getRange(-1000, 1000);
+            let componentMesh = new fc.ComponentMesh(cubeMesh);
+            let componentMaterial = new fc.ComponentMaterial(material);
+            let componentTransform = new fc.ComponentTransform();
+            let componentRigidbody = new fc.ComponentRigidbody();
+            colorR = fc.random.getRange(0, 1);
+            colorG = fc.random.getRange(0, 1);
+            colorB = fc.random.getRange(0, 1);
+            componentMaterial.clrPrimary = new fc.Color(colorR, colorG, colorB, 1);
+            componentTransform.mtxLocal.translation = new fc.Vector3(randX, randY, randZ);
+            componentTransform.mtxLocal.scale(new fc.Vector3(5, 5, 5));
+            componentRigidbody.effectGravity = 0;
+            componentRigidbody.mass = 0.001;
+            componentRigidbody.setScaling(new fc.Vector3(5, 5, 5));
+            nodeCube.addComponent(componentMesh);
+            nodeCube.addComponent(componentMaterial);
+            nodeCube.addComponent(componentTransform);
+            nodeCube.addComponent(componentRigidbody);
+            viewport.getBranch().addChild(nodeCube);
+        }
+    }
     function start(_event) {
         viewport = _event.detail;
         cmpCamera = viewport.camera;
@@ -59,6 +93,7 @@ var Script;
         fc.Loop.start(); // start the game loop to continously draw the viewport, update the audiosystem and drive the physics i/a
         fc.Loop.addEventListener("loopFrame" /* fc.EVENT.LOOP_FRAME */, update);
         cmpCamera.mtxPivot.translate(new fc.Vector3(0, 4, -30));
+        generateCubes(300);
     }
     function update(_event) {
         fc.Physics.simulate(); // if physics is included and used
@@ -116,13 +151,14 @@ var Script;
             StarShipRigidComponent = this.node.getComponent(fc.ComponentRigidbody);
             StarshipTransformComponent = this.node.getComponent(fc.ComponentTransform);
             this.setRelativeAxes();
+            this.thrust();
             if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.W])) {
-                this.thrust();
-                //StarShipRigidComponent.applyTorque(fc.Vector3.SCALE(this.relativeX, 1));
+                //this.thrust();
+                StarShipRigidComponent.applyTorque(fc.Vector3.SCALE(this.relativeX, 3));
             }
             if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.S])) {
-                this.backwards();
-                //StarShipRigidComponent.applyTorque(fc.Vector3.SCALE(this.relativeX, -1));
+                //this.backwards();
+                StarShipRigidComponent.applyTorque(fc.Vector3.SCALE(this.relativeX, -3));
             }
             if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.A])) {
                 this.rollLeft();
@@ -130,9 +166,19 @@ var Script;
             if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.D])) {
                 this.rollRight();
             }
-            StarShipRigidComponent.applyTorque(new fc.Vector3(0, this.xAxis * -5, 0));
-            StarShipRigidComponent.applyTorque(fc.Vector3.SCALE(this.relativeX, this.yAxis * 1.5));
-            StarShipRigidComponent.applyTorque(fc.Vector3.SCALE(this.relativeZ, this.xAxis));
+            if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.ARROW_LEFT])) {
+                StarShipRigidComponent.applyTorque(fc.Vector3.SCALE(this.relativeY, 3));
+            }
+            if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.ARROW_RIGHT])) {
+                StarShipRigidComponent.applyTorque(fc.Vector3.SCALE(this.relativeY, -3));
+            }
+            if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.SHIFT_LEFT])) {
+                this.thrustBoost();
+                //StarShipRigidComponent.applyTorque(fc.Vector3.SCALE(this.relativeX, 1));
+            }
+            // StarShipRigidComponent.applyTorque(new fc.Vector3(0, this.xAxis * -6, 0));
+            // StarShipRigidComponent.applyTorque(fc.Vector3.SCALE(this.relativeX, this.yAxis * 1.5));
+            // StarShipRigidComponent.applyTorque(fc.Vector3.SCALE(this.relativeZ, this.xAxis))
         };
         width = 0;
         height = 0;
@@ -158,11 +204,15 @@ var Script;
             let scaledRotatedDirection = fc.Vector3.SCALE(this.relativeZ, this.forwardthrust);
             StarShipRigidComponent.applyForce(scaledRotatedDirection);
         }
+        thrustBoost() {
+            let scaledRotatedDirection = fc.Vector3.SCALE(this.relativeZ, this.forwardthrust * 10);
+            StarShipRigidComponent.applyForce(scaledRotatedDirection);
+        }
         rollLeft() {
-            StarShipRigidComponent.applyTorque(fc.Vector3.SCALE(this.relativeZ, -2));
+            StarShipRigidComponent.applyTorque(fc.Vector3.SCALE(this.relativeZ, -10));
         }
         rollRight() {
-            StarShipRigidComponent.applyTorque(fc.Vector3.SCALE(this.relativeZ, 2));
+            StarShipRigidComponent.applyTorque(fc.Vector3.SCALE(this.relativeZ, 10));
         }
     }
     Script.StarShipScript = StarShipScript;

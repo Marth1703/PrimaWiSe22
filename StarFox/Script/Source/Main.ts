@@ -12,6 +12,47 @@ namespace Script {
 
   document.addEventListener("interactiveViewportStarted", <EventListener>start);
 
+  function generateCubes(n: number): void {
+
+    let cubeMesh: fc.MeshCube = new fc.MeshCube("cubeMesh");
+
+    let material: fc.Material = new fc.Material("cubeShader", fc.ShaderLit);
+    let randZ: number;
+    let randY: number;
+    let randX: number;
+    let colorR: number;
+    let colorG: number;
+    let colorB: number;
+    for (let i: number = 0; i < n; i++) {
+      let nodeCube: fc.Node = new fc.Node("cube" + i);
+      randX = fc.random.getRange(-1000, 1000);
+      randY = fc.random.getRange(15, 30);
+      randZ = fc.random.getRange(-1000, 1000);
+
+      let componentMesh: fc.ComponentMesh = new fc.ComponentMesh(cubeMesh);
+      let componentMaterial: fc.ComponentMaterial = new fc.ComponentMaterial(material);
+      let componentTransform: fc.ComponentTransform = new fc.ComponentTransform();
+      let componentRigidbody: fc.ComponentRigidbody = new fc.ComponentRigidbody();
+
+      colorR = fc.random.getRange(0, 1);
+      colorG = fc.random.getRange(0, 1);
+      colorB = fc.random.getRange(0, 1);
+      componentMaterial.clrPrimary = new fc.Color(colorR, colorG, colorB, 1)
+
+      componentTransform.mtxLocal.translation = new fc.Vector3(randX, randY, randZ);
+      componentTransform.mtxLocal.scale(new fc.Vector3(5, 5, 5));
+      componentRigidbody.effectGravity = 0;
+      componentRigidbody.mass = 0.001;
+      componentRigidbody.setScaling(new fc.Vector3(5, 5, 5));
+      nodeCube.addComponent(componentMesh);
+      nodeCube.addComponent(componentMaterial);
+      nodeCube.addComponent(componentTransform);
+      nodeCube.addComponent(componentRigidbody);
+      viewport.getBranch().addChild(nodeCube);
+    }
+
+  }
+
   function start(_event: CustomEvent): void {
   
     viewport = _event.detail;
@@ -23,6 +64,7 @@ namespace Script {
     fc.Loop.start();  // start the game loop to continously draw the viewport, update the audiosystem and drive the physics i/a
     fc.Loop.addEventListener(fc.EVENT.LOOP_FRAME, update);
     cmpCamera.mtxPivot.translate(new fc.Vector3(0, 4, -30));
+    generateCubes(300);
 
   }
 
