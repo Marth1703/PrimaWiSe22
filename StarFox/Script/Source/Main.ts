@@ -2,7 +2,8 @@ namespace Script {
   import fc = FudgeCore;
   fc.Debug.info("Main Program Template running!");
 
-  let viewport: fc.Viewport;
+  export let gameState: GameState;
+  export let viewport: fc.Viewport;
 
   let cmpCamera: fc.ComponentCamera;
 
@@ -14,8 +15,8 @@ namespace Script {
 
   let StarShipRigidComponent: fc.ComponentRigidbody;
 
+  let AnimatedCube: fc.Node;
   document.addEventListener("interactiveViewportStarted", <EventListener>start);
-
   function generateCubes(n: number): void {
 
     let cubeMesh: fc.MeshCube = new fc.MeshCube("cubeMesh");
@@ -59,8 +60,12 @@ namespace Script {
 
   function start(_event: CustomEvent): void {
   
+    // let response: Response = await fetch("config.json");
+    // let json = await response.json();
+
     viewport = _event.detail;
     cmpCamera = viewport.camera;
+    gameState = new GameState();
     let branch: fc.Node = viewport.getBranch();
     cmpTerrain = branch.getChildrenByName("Floor")[0].getComponent(fc.ComponentMesh);
     StarshipTransformComponent = branch.getChildrenByName("Spaceship")[0].getComponent(fc.ComponentTransform);    
@@ -69,10 +74,63 @@ namespace Script {
     fc.Loop.addEventListener(fc.EVENT.LOOP_FRAME, update);
     cmpCamera.mtxPivot.translate(new fc.Vector3(0, 4, -30));
 
+    AnimatedCube = branch.getChildrenByName("AnimatedCube")[0];
+ 
     StarShip = branch.getChildrenByName("Spaceship")[0];
-
+    initAnim();
     generateCubes(50);
   }
+
+  function initAnim(): void {
+
+    let animseqRot: fc.AnimationSequence = new fc.AnimationSequence();
+    animseqRot.addKey(new fc.AnimationKey(0, 0));
+    animseqRot.addKey(new fc.AnimationKey(1500, 180));
+    animseqRot.addKey(new fc.AnimationKey(3000, 360));
+
+    let animseqTra: fc.AnimationSequence = new fc.AnimationSequence();
+    animseqTra.addKey(new fc.AnimationKey(0, 20));
+    animseqTra.addKey(new fc.AnimationKey(1500, 50));
+    animseqTra.addKey(new fc.AnimationKey(3000, 80));
+
+    let animStructure: fc.AnimationStructure = {
+      components: {
+        ComponentTransform: [
+          {
+            "ƒ.ComponentTransform": {
+              mtxLocal: {
+                rotation: {
+                  x: animseqRot,
+                  y: animseqRot
+                }
+              }
+            }
+          }
+        ]
+      }
+    };
+
+    let fps: number = 30;
+
+    let animation: fc.Animation = new fc.Animation("testAnimation", animStructure, fps);
+
+    let cmpAnimator: fc.ComponentAnimator = new fc.ComponentAnimator(animation);
+    cmpAnimator.scale = 1;
+    console.log("FERTIG ANIM INIT");
+    
+    // cmpAnimator.addEventListener("event", (_event: Event) => {
+    //   let time: number = (<fc.ComponentAnimator>_event.target).time;
+    //   console.log(`Event fired at ${time}`, _event);
+    // });
+
+
+
+    AnimatedCube.addComponent(cmpAnimator);
+    cmpAnimator.activate(true);
+
+    console.log("Component", cmpAnimator);
+  }
+
 
   function update(_event: Event): void {
     fc.Physics.simulate();  // if physics is included and used

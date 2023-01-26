@@ -11,6 +11,18 @@ declare namespace Script {
 }
 declare namespace Script {
     import fc = FudgeCore;
+    class GameState extends fc.Mutable {
+        protected reduceMutator(_mutator: fc.Mutator): void;
+        height: string;
+        velocity: string;
+        private controller;
+        constructor();
+    }
+}
+declare namespace Script {
+    import fc = FudgeCore;
+    let gameState: GameState;
+    let viewport: fc.Viewport;
     let cmpTerrain: fc.ComponentMesh;
 }
 declare namespace Script {
@@ -43,4 +55,30 @@ declare namespace Script {
         rollLeft(): void;
         rollRight(): void;
     }
+}
+declare namespace Script {
+    import fAid = FudgeAid;
+    enum JOB {
+        IDLE = 0,
+        TARGET = 1
+    }
+    export class TurretStateMachine extends fAid.ComponentStateMachine<JOB> {
+        static readonly iSubclass: number;
+        private static instructions;
+        torqueIdle: number;
+        private cmpBody;
+        private cmpTurret;
+        private cmpTurretSphere;
+        private cmpMaterial;
+        constructor();
+        static get(): fAid.StateMachineInstructions<JOB>;
+        private static transitDefault;
+        private static actDefault;
+        private static actIdle;
+        private static actTarget;
+        private static transitOutOfRange;
+        private hndEvent;
+        private update;
+    }
+    export {};
 }

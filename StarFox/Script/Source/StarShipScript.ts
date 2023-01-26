@@ -27,7 +27,7 @@ namespace Script {
       private relativeZ: fc.Vector3;
 
       public strafeThrust: number = 2000;
-      public forwardthrust: number = 5000;
+      public forwardthrust: number = 200;
 
       constructor() {
         super();
@@ -58,6 +58,7 @@ namespace Script {
           case fc.EVENT.NODE_DESERIALIZED:          
             this.rigidbody = this.node.getComponent(fc.ComponentRigidbody)
             this.rigidbody.addEventListener(fc.EVENT_PHYSICS.COLLISION_ENTER, this.hndCollision);
+            this.node.addEventListener(fc.EVENT.RENDER_PREPARE, this.update);
             break;
         }
       }
@@ -67,18 +68,19 @@ namespace Script {
           return;
         }
         let terrainInfo: fc.TerrainInfo = (<fc.MeshTerrain>cmpTerrain.mesh).getTerrainInfo(this.node.mtxLocal.translation, cmpTerrain.mtxWorld);
-        console.log(terrainInfo.distance);
+        //console.log(terrainInfo.distance);
         if(terrainInfo.distance < 5){
-          let audioComp: fc.ComponentAudio = this.node.getComponent(fc.ComponentAudio);
-          audioComp.play(true);
+          //Collision
         }
+        gameState.height = "Height: " + Math.floor(terrainInfo.distance) + " m";
+        gameState.velocity = "Speed: " + Math.floor(this.rigidbody.getVelocity().x) + " mph";
       }
   
       public controlShip = (_event: Event): void => {
         StarShipRigidComponent = this.node.getComponent(fc.ComponentRigidbody);
         StarshipTransformComponent = this.node.getComponent(fc.ComponentTransform);
         this.setRelativeAxes();
-        this.thrust();
+        //this.thrust();
 
         if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.W])) {
             //this.thrust();

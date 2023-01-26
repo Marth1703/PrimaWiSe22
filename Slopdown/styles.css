@@ -14,18 +14,3 @@ canvas.fullscreen {
   width: 100vw; 
   height: 100vh; 
 }
-
-#vui{
-  position:absolute;
-  z-index: 0;
-  top: 10px;
-  left: 30px;
-  color:blue;
-}
-
-#vui input{
-  border: none;
-  background: none;
-  color:rgb(0, 255, 238);
-  font-size: larger;
-}
