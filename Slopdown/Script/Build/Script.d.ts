@@ -6,6 +6,7 @@ declare namespace Script {
         private rigidbody;
         constructor();
         hndEvent: (_event: Event) => void;
+        private update;
         handleInputs: (_event: Event) => void;
         moveRight(): void;
         moveLeft(): void;
@@ -21,4 +22,16 @@ declare namespace Script {
     }
 }
 declare namespace Script {
+    import fc = FudgeCore;
+    class GameState extends fc.Mutable {
+        protected reduceMutator(_mutator: fc.Mutator): void;
+        velocity: string;
+        private controller;
+        constructor();
+    }
+}
+declare namespace Script {
+    import fc = FudgeCore;
+    let viewport: fc.Viewport;
+    let vui: GameState;
 }

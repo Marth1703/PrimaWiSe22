@@ -21,7 +21,7 @@ namespace Script {
         this.addEventListener(fc.EVENT.COMPONENT_ADD, this.hndEvent);
         this.addEventListener(fc.EVENT.COMPONENT_REMOVE, this.hndEvent);
         this.addEventListener(fc.EVENT.NODE_DESERIALIZED, this.hndEvent);
-        this.rigidbody = this.node.getComponent(fc.ComponentRigidbody)
+        
       }
   
       // Activate the functions of this component as response to events
@@ -30,21 +30,29 @@ namespace Script {
           case fc.EVENT.COMPONENT_ADD:
             fc.Debug.log(this.message, this.node);
             fc.Loop.addEventListener(fc.EVENT.LOOP_FRAME, this.handleInputs)
+            fc.Loop.addEventListener(fc.EVENT.LOOP_FRAME, this.update)
             break;
           case fc.EVENT.COMPONENT_REMOVE:
             this.removeEventListener(fc.EVENT.COMPONENT_ADD, this.hndEvent);
             this.removeEventListener(fc.EVENT.COMPONENT_REMOVE, this.hndEvent);
             break;
           case fc.EVENT.NODE_DESERIALIZED:
+            this.rigidbody = this.node.getComponent(fc.ComponentRigidbody);
+            
             // if deserialized the node is now fully reconstructed and access to all its components and children is possible
             break;
         }
       }
   
+      private update = (_event: Event): void =>{
+        vui.velocity = "Speed: " + Math.floor(this.rigidbody.getVelocity().x) + " mph";
+      }
+
       // protected reduceMutator(_mutator: ƒ.Mutator): void {
       //   // delete properties that should not be mutated
       //   // undefined properties and private fields (#) will not be included by default
       // }
+      
       public handleInputs = (_event: Event): void => {
         if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.W, fc.KEYBOARD_CODE.ARROW_UP])) {
           

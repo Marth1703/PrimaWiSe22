@@ -18,7 +18,6 @@ var Script;
             this.addEventListener("componentAdd" /* fc.EVENT.COMPONENT_ADD */, this.hndEvent);
             this.addEventListener("componentRemove" /* fc.EVENT.COMPONENT_REMOVE */, this.hndEvent);
             this.addEventListener("nodeDeserialized" /* fc.EVENT.NODE_DESERIALIZED */, this.hndEvent);
-            this.rigidbody = this.node.getComponent(fc.ComponentRigidbody);
         }
         // Activate the functions of this component as response to events
         hndEvent = (_event) => {
@@ -26,15 +25,20 @@ var Script;
                 case "componentAdd" /* fc.EVENT.COMPONENT_ADD */:
                     fc.Debug.log(this.message, this.node);
                     fc.Loop.addEventListener("loopFrame" /* fc.EVENT.LOOP_FRAME */, this.handleInputs);
+                    fc.Loop.addEventListener("loopFrame" /* fc.EVENT.LOOP_FRAME */, this.update);
                     break;
                 case "componentRemove" /* fc.EVENT.COMPONENT_REMOVE */:
                     this.removeEventListener("componentAdd" /* fc.EVENT.COMPONENT_ADD */, this.hndEvent);
                     this.removeEventListener("componentRemove" /* fc.EVENT.COMPONENT_REMOVE */, this.hndEvent);
                     break;
                 case "nodeDeserialized" /* fc.EVENT.NODE_DESERIALIZED */:
+                    this.rigidbody = this.node.getComponent(fc.ComponentRigidbody);
                     // if deserialized the node is now fully reconstructed and access to all its components and children is possible
                     break;
             }
+        };
+        update = (_event) => {
+            Script.vui.velocity = "Speed: " + Math.floor(this.rigidbody.getVelocity().x) + " mph";
         };
         // protected reduceMutator(_mutator: ƒ.Mutator): void {
         //   // delete properties that should not be mutated
@@ -102,15 +106,31 @@ var Script;
 var Script;
 (function (Script) {
     var fc = FudgeCore;
+    var fui = FudgeUserInterface;
+    class GameState extends fc.Mutable {
+        reduceMutator(_mutator) { }
+        velocity;
+        controller;
+        constructor() {
+            super();
+            this.controller = new fui.Controller(this, document.querySelector("#vui"));
+            console.log(this.controller);
+        }
+    }
+    Script.GameState = GameState;
+})(Script || (Script = {}));
+var Script;
+(function (Script) {
+    var fc = FudgeCore;
     fc.Debug.info("Main Program Template running!");
-    let viewport;
     let cmpCamera;
     let Avatar;
     document.addEventListener("interactiveViewportStarted", start);
     function start(_event) {
-        viewport = _event.detail;
-        cmpCamera = viewport.camera;
-        let branch = viewport.getBranch();
+        Script.viewport = _event.detail;
+        cmpCamera = Script.viewport.camera;
+        Script.vui = new Script.GameState();
+        let branch = Script.viewport.getBranch();
         Avatar = branch.getChildrenByName("Avatar")[0];
         fc.Loop.addEventListener("loopFrame" /* fc.EVENT.LOOP_FRAME */, update);
         cmpCamera.mtxPivot.translate(new fc.Vector3(0, 2, -20));
@@ -119,7 +139,7 @@ var Script;
     }
     function update(_event) {
         fc.Physics.simulate(); // if physics is included and used
-        viewport.draw();
+        Script.viewport.draw();
         fc.AudioManager.default.update();
     }
     function InitPhysics() {

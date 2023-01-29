@@ -1,8 +1,10 @@
 namespace Script {
   import fc = FudgeCore;
+  import fui = FudgeUserInterface;
   fc.Debug.info("Main Program Template running!");
 
-  let viewport: fc.Viewport;
+  export let viewport: fc.Viewport;
+  export let vui: GameState;
   let cmpCamera: fc.ComponentCamera;
   let Avatar: fc.Node;
   document.addEventListener("interactiveViewportStarted", <EventListener>start);
@@ -10,6 +12,7 @@ namespace Script {
   function start(_event: CustomEvent): void {
     viewport = _event.detail;
     cmpCamera = viewport.camera;
+    vui = new GameState(); 
     let branch: fc.Node = viewport.getBranch();
     Avatar = branch.getChildrenByName("Avatar")[0];
     fc.Loop.addEventListener(fc.EVENT.LOOP_FRAME, update);
