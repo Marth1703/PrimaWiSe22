@@ -2,7 +2,7 @@ namespace Script {
     import fc = FudgeCore;
     import fui = FudgeUserInterface;
 
-    export class GameState extends fc.Mutable {
+    export class VUI extends fc.Mutable {
         protected reduceMutator(_mutator: fc.Mutator): void { /**/ }
 
         public velocity: string; 

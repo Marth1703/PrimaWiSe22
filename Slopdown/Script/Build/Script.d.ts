@@ -4,12 +4,17 @@ declare namespace Script {
         static readonly iSubclass: number;
         message: string;
         private rigidbody;
+        private currentVelocity;
+        private isJumping;
         constructor();
         hndEvent: (_event: Event) => void;
         private update;
         handleInputs: (_event: Event) => void;
         moveRight(): void;
         moveLeft(): void;
+        moveForward(): void;
+        moveBrake(): void;
+        jump(): void;
     }
 }
 declare namespace Script {
@@ -23,15 +28,15 @@ declare namespace Script {
 }
 declare namespace Script {
     import fc = FudgeCore;
-    class GameState extends fc.Mutable {
+    let viewport: fc.Viewport;
+    let vui: VUI;
+}
+declare namespace Script {
+    import fc = FudgeCore;
+    class VUI extends fc.Mutable {
         protected reduceMutator(_mutator: fc.Mutator): void;
         velocity: string;
         private controller;
         constructor();
     }
-}
-declare namespace Script {
-    import fc = FudgeCore;
-    let viewport: fc.Viewport;
-    let vui: GameState;
 }
