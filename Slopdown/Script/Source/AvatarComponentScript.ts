@@ -11,8 +11,8 @@ namespace Script {
       private rigidbody: fc.ComponentRigidbody;
 
       private currentVelocity: fc.Vector3;
-  
-      private isJumping: boolean;
+
+      private jumpHeight: number;
       constructor() {
         super();
   
@@ -42,14 +42,14 @@ namespace Script {
           case fc.EVENT.NODE_DESERIALIZED:
             this.rigidbody = this.node.getComponent(fc.ComponentRigidbody);
             this.currentVelocity = new fc.Vector3(0, 0, 0);
-            this.isJumping = false;
-            // if deserialized the node is now fully reconstructed and access to all its components and children is possible
+            this.jumpHeight = 0;
             break;
         }
       }
   
       private update = (_event: Event): void =>{
         vui.velocity = "Speed: " + Math.floor(this.currentVelocity.x) + " mph";
+        
       }
 
       // protected reduceMutator(_mutator: ƒ.Mutator): void {
@@ -59,7 +59,6 @@ namespace Script {
       
       public handleInputs = (_event: Event): void => {
         this.currentVelocity = this.rigidbody.getVelocity();
-        //console.log(this.rigidbody.getVelocity().y);
         if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.W, fc.KEYBOARD_CODE.ARROW_UP])) {
           this.moveForward();
         }
@@ -72,25 +71,45 @@ namespace Script {
         if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.D, fc.KEYBOARD_CODE.ARROW_RIGHT])) {
           this.moveRight();
         }
-        if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.SPACE]) && !this.isJumping) {
-          if(!this.isJumping){
-            this.jump();
+        if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.SPACE])) {
+          this.addJumpVelocity();
+        }
+        else {
+          if(this.jumpHeight > 1){
+            this.applyJumpVelocity(this.jumpHeight);
           }
+          this.jumpHeight = 0;
+        }
+      }
+
+      addJumpVelocity(): void {
+        if(this.currentVelocity.y < 0){
+          this.jumpHeight += 0.15;
+          console.log(this.jumpHeight);
+        }
+      }
+
+      applyJumpVelocity(velo: number): void {
+        if(velo < 10){
+          this.rigidbody.setVelocity(new fc.Vector3(this.currentVelocity.x, velo, this.currentVelocity.z));
+        }
+        else {
+          this.rigidbody.setVelocity(new fc.Vector3(this.currentVelocity.x, 10, this.currentVelocity.z));
         }
       }
 
       moveRight(): void {
-        if(this.rigidbody.getVelocity().z < 0){
-          this.rigidbody.setVelocity(new fc.Vector3(this.currentVelocity.x, this.currentVelocity.y, 1.5));
+        if(this.rigidbody.getVelocity().z < -3){
+          this.rigidbody.setVelocity(new fc.Vector3(this.currentVelocity.x, this.currentVelocity.y, 2.5));
         }
-        this.rigidbody.applyForce(new fc.Vector3(0,0,100));
+        this.rigidbody.applyForce(new fc.Vector3(0,0,50));
       }
 
       moveLeft(): void {
-        if(this.rigidbody.getVelocity().z > 0){
-          this.rigidbody.setVelocity(new fc.Vector3(this.currentVelocity.x, this.currentVelocity.y, -1.5));
+        if(this.rigidbody.getVelocity().z > 3){
+          this.rigidbody.setVelocity(new fc.Vector3(this.currentVelocity.x, this.currentVelocity.y, -2.5));
         }
-        this.rigidbody.applyForce(new fc.Vector3(0,0,-100));
+        this.rigidbody.applyForce(new fc.Vector3(0,0,-50));
       }
 
       moveForward(): void {
@@ -105,24 +124,6 @@ namespace Script {
         if(this.currentVelocity.x < 2) {
           this.rigidbody.setVelocity(new fc.Vector3(2, this.currentVelocity.y, this.currentVelocity.z));
         }
-      }
-
-      jump(): void {
-        console.log("hi");
-        this.isJumping = true;
-        if(this.currentVelocity.y < 0){
-          let jumpheight = 0;
-          while(true) {
-            jumpheight += 0.1;
-            console.log(jumpheight);
-            if(!fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.SPACE])){
-              console.log("raus da");
-              break;
-            }
-          }
-          this.rigidbody.setVelocity(new fc.Vector3(this.currentVelocity.x, jumpheight, this.currentVelocity.z));
-        }
-        this.isJumping = false;
       }
     }
   }

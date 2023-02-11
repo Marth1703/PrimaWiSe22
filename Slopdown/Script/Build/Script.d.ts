@@ -5,16 +5,17 @@ declare namespace Script {
         message: string;
         private rigidbody;
         private currentVelocity;
-        private isJumping;
+        private jumpHeight;
         constructor();
         hndEvent: (_event: Event) => void;
         private update;
         handleInputs: (_event: Event) => void;
+        addJumpVelocity(): void;
+        applyJumpVelocity(velo: number): void;
         moveRight(): void;
         moveLeft(): void;
         moveForward(): void;
         moveBrake(): void;
-        jump(): void;
     }
 }
 declare namespace Script {

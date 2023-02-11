@@ -10,6 +10,8 @@ namespace Script {
   document.addEventListener("interactiveViewportStarted", <EventListener>start);
 
   function start(_event: CustomEvent): void {
+    console.log("build work");
+    
     viewport = _event.detail;
     cmpCamera = viewport.camera;
     vui = new VUI(); 
