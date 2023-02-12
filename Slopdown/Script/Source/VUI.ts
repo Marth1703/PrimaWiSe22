@@ -6,6 +6,7 @@ namespace Script {
         protected reduceMutator(_mutator: fc.Mutator): void { /**/ }
 
         public velocity: string; 
+        public time: string;
         private controller: fui.Controller;
         
         constructor (){ 

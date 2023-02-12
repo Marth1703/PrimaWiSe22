@@ -6,13 +6,14 @@ namespace Script {
       // Register the script as component for use in the editor via drag&drop
       public static readonly iSubclass: number = fc.Component.registerSubclass(AvatarComponentScript);
       // Properties may be mutated by users in the editor via the automatically created user interface
-      public message: string = "CustomComponentScript added to ";
+      public message: string = "AvatarComponentScript added to ";
     
       private rigidbody: fc.ComponentRigidbody;
 
       private currentVelocity: fc.Vector3;
 
       private jumpHeight: number;
+
       constructor() {
         super();
   
@@ -47,9 +48,8 @@ namespace Script {
         }
       }
   
-      private update = (_event: Event): void =>{
+      private update = (_event: Event): void => {
         vui.velocity = "Speed: " + Math.floor(this.currentVelocity.x) + " mph";
-        
       }
 
       // protected reduceMutator(_mutator: ƒ.Mutator): void {
@@ -90,11 +90,14 @@ namespace Script {
       }
 
       applyJumpVelocity(velo: number): void {
-        if(velo < 10){
-          this.rigidbody.setVelocity(new fc.Vector3(this.currentVelocity.x, velo, this.currentVelocity.z));
-        }
-        else {
-          this.rigidbody.setVelocity(new fc.Vector3(this.currentVelocity.x, 10, this.currentVelocity.z));
+        if(!isAirborne){
+          if(velo < 10){
+            this.rigidbody.setVelocity(new fc.Vector3(this.currentVelocity.x, velo, this.currentVelocity.z));
+          }
+          else {
+            this.rigidbody.setVelocity(new fc.Vector3(this.currentVelocity.x, 10, this.currentVelocity.z));
+          }
+          isAirborne = true;
         }
       }
 

@@ -5,16 +5,18 @@ namespace Script {
 
   export let viewport: fc.Viewport;
   export let vui: VUI;
+  export let currentTime: number;
+  export let isAirborne: boolean;
   let cmpCamera: fc.ComponentCamera;
   let Avatar: fc.Node;
   document.addEventListener("interactiveViewportStarted", <EventListener>start);
 
   function start(_event: CustomEvent): void {
-    console.log("build work");
-    
     viewport = _event.detail;
     cmpCamera = viewport.camera;
     vui = new VUI(); 
+    currentTime = 0;
+    isAirborne = true;
     let branch: fc.Node = viewport.getBranch();
     Avatar = branch.getChildrenByName("Avatar")[0];
     fc.Loop.addEventListener(fc.EVENT.LOOP_FRAME, update);
@@ -27,6 +29,8 @@ namespace Script {
     fc.Physics.simulate();  // if physics is included and used
     viewport.draw();
     fc.AudioManager.default.update();
+    currentTime = fc.Time.game.get();
+    vui.time = "Time: " + (currentTime/1000).toFixed(3) + "s";
   }
 
   function InitPhysics(): void {

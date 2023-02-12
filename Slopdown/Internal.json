@@ -106,6 +106,24 @@
       }
     }
   },
+  "Material|2023-02-11T22:19:00.989Z|97290": {
+    "ƒ.Material": {
+      "name": "ShaderLitTextured",
+      "idResource": "Material|2023-02-11T22:19:00.989Z|97290",
+      "shader": "ShaderLitTextured",
+      "coat": {
+        "ƒ.CoatTextured": {
+          "color": "[1, 1, 1, 1]"
+        }
+      }
+    }
+  },
+  "MeshQuad|2023-02-11T22:55:49.075Z|46163": {
+    "ƒ.MeshQuad": {
+      "idResource": "MeshQuad|2023-02-11T22:55:49.075Z|46163",
+      "name": "Deathplane"
+    }
+  },
   "Graph|2023-01-10T15:26:17.329Z|95477": {
     "ƒ.Graph": {
       "name": "Level",
@@ -249,9 +267,146 @@
                     }
                   }
                 }
+              ],
+              "SlopeComponentScript": [
+                {
+                  "Script.SlopeComponentScript": {
+                    "active": true,
+                    "message": "SlopeComponentScript added to "
+                  }
+                }
               ]
             },
-            "children": []
+            "children": [
+              {
+                "ƒ.Node": {
+                  "name": "Deathplane",
+                  "active": true,
+                  "components": {
+                    "ComponentMesh": [
+                      {
+                        "ƒ.ComponentMesh": {
+                          "idMesh": "MeshQuad|2023-02-11T22:55:49.075Z|46163",
+                          "pivot": {
+                            "translation": "[0, 0, 0]",
+                            "rotation": "[0, 0, 0]",
+                            "scaling": "[320, 115, 1]"
+                          },
+                          "Component": {
+                            "active": true
+                          }
+                        }
+                      }
+                    ],
+                    "ComponentMaterial": [],
+                    "ComponentTransform": [
+                      {
+                        "ƒ.ComponentTransform": {
+                          "local": {
+                            "translation": "[0, 15, 0]",
+                            "rotation": "[-90, 0, 0]",
+                            "scaling": "[1, 1, 1]"
+                          },
+                          "Component": {
+                            "active": true
+                          }
+                        }
+                      }
+                    ],
+                    "ComponentRigidbody": [
+                      {
+                        "ƒ.ComponentRigidbody": {
+                          "initialization": "TO_PIVOT",
+                          "friction": 0.2,
+                          "restitution": 0.2,
+                          "mass": 1,
+                          "dampTranslation": 0.1,
+                          "dampRotation": 0.1,
+                          "effectGravity": 0,
+                          "typeBody": "DYNAMIC",
+                          "typeCollider": "CUBE",
+                          "isTrigger": true,
+                          "id": 1,
+                          "pivot": {
+                            "translation": "[0, 0, 0]",
+                            "rotation": "[0, 0, 0]",
+                            "scaling": "[320, 115, 1]"
+                          },
+                          "Component": {
+                            "active": true
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "children": []
+                }
+              },
+              {
+                "ƒ.Node": {
+                  "name": "Colliderplane",
+                  "active": true,
+                  "components": {
+                    "ComponentMesh": [
+                      {
+                        "ƒ.ComponentMesh": {
+                          "idMesh": "MeshQuad|2023-02-11T22:55:49.075Z|46163",
+                          "pivot": {
+                            "translation": "[0, 0, 0]",
+                            "rotation": "[0, 0, 0]",
+                            "scaling": "[1, 1, 1]"
+                          },
+                          "Component": {
+                            "active": true
+                          }
+                        }
+                      }
+                    ],
+                    "ComponentMaterial": [],
+                    "ComponentTransform": [
+                      {
+                        "ƒ.ComponentTransform": {
+                          "local": {
+                            "translation": "[0, 20.01999855041504, 0]",
+                            "rotation": "[-90, 0, 0]",
+                            "scaling": "[270, 20, 1]"
+                          },
+                          "Component": {
+                            "active": true
+                          }
+                        }
+                      }
+                    ],
+                    "ComponentRigidbody": [
+                      {
+                        "ƒ.ComponentRigidbody": {
+                          "initialization": "TO_PIVOT",
+                          "friction": 0.2,
+                          "restitution": 0.2,
+                          "mass": 1,
+                          "dampTranslation": 0.1,
+                          "dampRotation": 0.1,
+                          "effectGravity": 0,
+                          "typeBody": "DYNAMIC",
+                          "typeCollider": "CUBE",
+                          "isTrigger": true,
+                          "id": 3,
+                          "pivot": {
+                            "translation": "[0, 0, 0]",
+                            "rotation": "[0, 0, 0]",
+                            "scaling": "[1, 1, 0.09999992698431015]"
+                          },
+                          "Component": {
+                            "active": true
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "children": []
+                }
+              }
+            ]
           }
         },
         {
@@ -446,13 +601,13 @@
       "type": "Graph"
     }
   },
-  "Material|2023-02-11T22:19:00.989Z|97290": {
+  "Material|2023-02-12T00:05:27.137Z|08240": {
     "ƒ.Material": {
-      "name": "ShaderLitTextured",
-      "idResource": "Material|2023-02-11T22:19:00.989Z|97290",
-      "shader": "ShaderLitTextured",
+      "name": "fdsfsdf",
+      "idResource": "Material|2023-02-12T00:05:27.137Z|08240",
+      "shader": "ShaderLit",
       "coat": {
-        "ƒ.CoatTextured": {
+        "ƒ.CoatColored": {
           "color": "[1, 1, 1, 1]"
         }
       }
