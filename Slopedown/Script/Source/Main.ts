@@ -22,7 +22,17 @@ namespace Script {
     fc.Loop.addEventListener(fc.EVENT.LOOP_FRAME, update);
     cmpCamera.mtxPivot.translate(new fc.Vector3(0, 2, -20));
     InitPhysics();
+    createRing();
     fc.Loop.start();  // start the game loop to continously draw the viewport, update the audiosystem and drive the physics i/a
+  }
+
+  function createRing(): void {
+    let ring: RingNode = new RingNode();
+    viewport.getBranch().addChild(ring);
+    console.log("WWWWWWWWWWWWWWWWWW");
+    console.log(ring);
+    
+    
   }
 
   function update(_event: Event): void {

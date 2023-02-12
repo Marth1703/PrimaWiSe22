@@ -36,6 +36,23 @@ declare namespace Script {
 }
 declare namespace Script {
     import fc = FudgeCore;
+    class RingComponentScript extends fc.ComponentScript {
+        static readonly iSubclass: number;
+        message: string;
+        private boostCylinder;
+        constructor();
+        hndEvent: (_event: Event) => void;
+        private receiveBoost;
+    }
+}
+declare namespace Script {
+    import fc = FudgeCore;
+    class RingNode extends fc.Node {
+        constructor();
+    }
+}
+declare namespace Script {
+    import fc = FudgeCore;
     class SlopeComponentScript extends fc.ComponentScript {
         static readonly iSubclass: number;
         message: string;

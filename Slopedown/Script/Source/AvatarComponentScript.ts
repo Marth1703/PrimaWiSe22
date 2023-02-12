@@ -105,14 +105,14 @@ namespace Script {
         if(this.rigidbody.getVelocity().z < -3){
           this.rigidbody.setVelocity(new fc.Vector3(this.currentVelocity.x, this.currentVelocity.y, 2.5));
         }
-        this.rigidbody.applyForce(new fc.Vector3(0,0,50));
+        this.rigidbody.applyForce(new fc.Vector3(0,0,25));
       }
 
       moveLeft(): void {
         if(this.rigidbody.getVelocity().z > 3){
           this.rigidbody.setVelocity(new fc.Vector3(this.currentVelocity.x, this.currentVelocity.y, -2.5));
         }
-        this.rigidbody.applyForce(new fc.Vector3(0,0,-50));
+        this.rigidbody.applyForce(new fc.Vector3(0,0,-25));
       }
 
       moveForward(): void {

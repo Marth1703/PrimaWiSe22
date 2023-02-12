@@ -2,14 +2,13 @@ namespace Script {
     import fc = FudgeCore;
     fc.Project.registerScriptNamespace(Script);  // Register the namespace to FUDGE for serialization
   
-    export class SlopeComponentScript extends fc.ComponentScript {
+    export class RingComponentScript extends fc.ComponentScript {
       // Register the script as component for use in the editor via drag&drop
-      public static readonly iSubclass: number = fc.Component.registerSubclass(SlopeComponentScript);
+      public static readonly iSubclass: number = fc.Component.registerSubclass(RingComponentScript);
       // Properties may be mutated by users in the editor via the automatically created user interface
-      public message: string = "SlopeComponentScript added to ";
+      public message: string = "RingComponentScript added to ";
 
-      private deathPlane: fc.ComponentRigidbody;
-      private colliderPlane: fc.ComponentRigidbody;
+      private boostCylinder: fc.ComponentRigidbody;
       constructor() {
         super();
   
@@ -28,35 +27,30 @@ namespace Script {
         switch (_event.type) {
           case fc.EVENT.COMPONENT_ADD:
             fc.Debug.log(this.message, this.node);
+            this.boostCylinder = this.node.getComponent(fc.ComponentRigidbody);
+            this.boostCylinder.addEventListener(fc.EVENT_PHYSICS.TRIGGER_ENTER, this.receiveBoost);
             break;
           case fc.EVENT.COMPONENT_REMOVE:
             this.removeEventListener(fc.EVENT.COMPONENT_ADD, this.hndEvent);
             this.removeEventListener(fc.EVENT.COMPONENT_REMOVE, this.hndEvent);
             break;
           case fc.EVENT.NODE_DESERIALIZED:
-            this.deathPlane = this.node.getChildrenByName("Deathplane")[0].getComponent(fc.ComponentRigidbody);
-            this.colliderPlane = this.node.getChildrenByName("Colliderplane")[0].getComponent(fc.ComponentRigidbody);
-            this.deathPlane.addEventListener(fc.EVENT_PHYSICS.TRIGGER_ENTER, this.enteredDeathPlane);
-            this.colliderPlane.addEventListener(fc.EVENT_PHYSICS.TRIGGER_ENTER, this.onSlope);
+            break;
+          case fc.EVENT.NODE_ACTIVATE:
             break;
         }
       }
 
-      private enteredDeathPlane = (_event: Event): void => {
-        if (currentTime > 2 /* TODO: Add variable for earliest death time */){
-            console.log("playerDied");
+      private receiveBoost = (_event: Event): void => {
+        if (currentTime/1000 > 2 /* TODO: Execute boost effect*/){
+            console.log("boosted");
         }
       }
 
-      private onSlope = (_event: Event): void => {
-        if (currentTime > 2 /* TODO: Add variable aswell */){
-            isAirborne = false;
-        }
-      }
   
       // protected reduceMutator(_mutator: ƒ.Mutator): void {
       //   // delete properties that should not be mutated
       //   // undefined properties and private fields (#) will not be included by default
       // }
     }
-  }
+}

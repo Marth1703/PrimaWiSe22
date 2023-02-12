@@ -87,13 +87,13 @@ var Script;
             if (this.rigidbody.getVelocity().z < -3) {
                 this.rigidbody.setVelocity(new fc.Vector3(this.currentVelocity.x, this.currentVelocity.y, 2.5));
             }
-            this.rigidbody.applyForce(new fc.Vector3(0, 0, 50));
+            this.rigidbody.applyForce(new fc.Vector3(0, 0, 25));
         }
         moveLeft() {
             if (this.rigidbody.getVelocity().z > 3) {
                 this.rigidbody.setVelocity(new fc.Vector3(this.currentVelocity.x, this.currentVelocity.y, -2.5));
             }
-            this.rigidbody.applyForce(new fc.Vector3(0, 0, -50));
+            this.rigidbody.applyForce(new fc.Vector3(0, 0, -25));
         }
         moveForward() {
             this.rigidbody.setVelocity(new fc.Vector3(this.currentVelocity.x + 1, this.currentVelocity.y, this.currentVelocity.z));
@@ -167,7 +167,14 @@ var Script;
         fc.Loop.addEventListener("loopFrame" /* LOOP_FRAME */, update);
         cmpCamera.mtxPivot.translate(new fc.Vector3(0, 2, -20));
         InitPhysics();
+        createRing();
         fc.Loop.start(); // start the game loop to continously draw the viewport, update the audiosystem and drive the physics i/a
+    }
+    function createRing() {
+        let ring = new Script.RingNode();
+        Script.viewport.getBranch().addChild(ring);
+        console.log("WWWWWWWWWWWWWWWWWW");
+        console.log(ring);
     }
     function update(_event) {
         fc.Physics.simulate(); // if physics is included and used
@@ -180,6 +187,91 @@ var Script;
         let rigidbody = Avatar.getComponent(fc.ComponentRigidbody);
         rigidbody.friction = 0.00;
     }
+})(Script || (Script = {}));
+var Script;
+(function (Script) {
+    var fc = FudgeCore;
+    fc.Project.registerScriptNamespace(Script); // Register the namespace to FUDGE for serialization
+    class RingComponentScript extends fc.ComponentScript {
+        constructor() {
+            super();
+            // Properties may be mutated by users in the editor via the automatically created user interface
+            this.message = "RingComponentScript added to ";
+            // Activate the functions of this component as response to events
+            this.hndEvent = (_event) => {
+                switch (_event.type) {
+                    case "componentAdd" /* COMPONENT_ADD */:
+                        fc.Debug.log(this.message, this.node);
+                        this.boostCylinder = this.node.getComponent(fc.ComponentRigidbody);
+                        this.boostCylinder.addEventListener("TriggerEnteredCollision" /* TRIGGER_ENTER */, this.receiveBoost);
+                        break;
+                    case "componentRemove" /* COMPONENT_REMOVE */:
+                        this.removeEventListener("componentAdd" /* COMPONENT_ADD */, this.hndEvent);
+                        this.removeEventListener("componentRemove" /* COMPONENT_REMOVE */, this.hndEvent);
+                        break;
+                    case "nodeDeserialized" /* NODE_DESERIALIZED */:
+                        break;
+                    case "nodeActivate" /* NODE_ACTIVATE */:
+                        break;
+                }
+            };
+            this.receiveBoost = (_event) => {
+                if (Script.currentTime / 1000 > 2 /* TODO: Execute boost effect*/) {
+                    console.log("boosted");
+                }
+            };
+            // Don't start when running in editor
+            if (fc.Project.mode == fc.MODE.EDITOR)
+                return;
+            // Listen to this component being added to or removed from a node
+            this.addEventListener("componentAdd" /* COMPONENT_ADD */, this.hndEvent);
+            this.addEventListener("componentRemove" /* COMPONENT_REMOVE */, this.hndEvent);
+            this.addEventListener("nodeDeserialized" /* NODE_DESERIALIZED */, this.hndEvent);
+        }
+    }
+    // Register the script as component for use in the editor via drag&drop
+    RingComponentScript.iSubclass = fc.Component.registerSubclass(RingComponentScript);
+    Script.RingComponentScript = RingComponentScript;
+})(Script || (Script = {}));
+var Script;
+(function (Script) {
+    var fc = FudgeCore;
+    class RingNode extends fc.Node {
+        constructor() {
+            super("Ring");
+            let innerRing = new fc.Node("boostCylinder");
+            let outerRingTorus = new fc.MeshTorus("outerRingM", 0.08, 15, 10);
+            let innerRingTorus = new fc.MeshTorus("innerRingM", 0.05, 15, 10);
+            let outerRingMesh = new fc.ComponentMesh(outerRingTorus);
+            let innerRingMesh = new fc.ComponentMesh(innerRingTorus);
+            outerRingMesh.mtxPivot.scaling = new fc.Vector3(10, 10, 7);
+            innerRingMesh.mtxPivot.scaling = new fc.Vector3(9, 9, 6);
+            let outerMat = new fc.Material("ringMaterialOut", fc.ShaderGouraud);
+            let innerMat = new fc.Material("ringMaterialIn", fc.ShaderLit);
+            let outerMatComp = new fc.ComponentMaterial(outerMat);
+            let innerMatComp = new fc.ComponentMaterial(innerMat);
+            outerMatComp.clrPrimary = new fc.Color(0.31, 0.41, 0.6);
+            innerMatComp.clrPrimary = new fc.Color(0.97, 0.86, 0.21);
+            let outerRingTransform = new fc.ComponentTransform();
+            outerRingTransform.mtxLocal.translation = new fc.Vector3(-90, 28, -6);
+            outerRingTransform.mtxLocal.rotateZ(85);
+            let outerRingRigidBody = new fc.ComponentRigidbody();
+            outerRingRigidBody.isTrigger = true;
+            outerRingRigidBody.effectGravity = 0;
+            outerRingRigidBody.mtxPivot.translateX(1);
+            outerRingRigidBody.mtxPivot.scaling = new fc.Vector3(4, 1, 1.5);
+            let ringScript = new Script.RingComponentScript();
+            this.addComponent(outerRingMesh);
+            this.addComponent(outerMatComp);
+            this.addComponent(outerRingTransform);
+            this.addComponent(outerRingRigidBody);
+            this.addComponent(ringScript);
+            innerRing.addComponent(innerRingMesh);
+            innerRing.addComponent(innerMatComp);
+            this.addChild(innerRing);
+        }
+    }
+    Script.RingNode = RingNode;
 })(Script || (Script = {}));
 var Script;
 (function (Script) {
@@ -209,12 +301,12 @@ var Script;
                 }
             };
             this.enteredDeathPlane = (_event) => {
-                if (Script.currentTime > 2 /* TODO: Add variable for earliest death time */) {
+                if (Script.currentTime / 1000 > 2 /* TODO: Add variable for earliest death time */) {
                     console.log("playerDied");
                 }
             };
             this.onSlope = (_event) => {
-                if (Script.currentTime > 2 /* TODO: Add variable aswell */) {
+                if (Script.currentTime / 1000 > 2 /* TODO: Add variable aswell */) {
                     Script.isAirborne = false;
                 }
             };
