@@ -33,6 +33,7 @@ declare namespace Script {
     let vui: VUI;
     let currentTime: number;
     let isAirborne: boolean;
+    let avatar: fc.Node;
 }
 declare namespace Script {
     import fc = FudgeCore;
@@ -62,6 +63,12 @@ declare namespace Script {
         hndEvent: (_event: Event) => void;
         private enteredDeathPlane;
         private onSlope;
+    }
+}
+declare namespace Script {
+    import fc = FudgeCore;
+    class TreeNode extends fc.Node {
+        constructor();
     }
 }
 declare namespace Script {

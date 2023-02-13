@@ -62,11 +62,11 @@ namespace Script {
         if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.W, fc.KEYBOARD_CODE.ARROW_UP])) {
           this.moveForward();
         }
-        if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.A, fc.KEYBOARD_CODE.ARROW_LEFT])) {
-          this.moveLeft();
-        }
         if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.S, fc.KEYBOARD_CODE.ARROW_DOWN])) {
           this.moveBrake();
+        }
+        if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.A, fc.KEYBOARD_CODE.ARROW_LEFT])) {
+          this.moveLeft();
         }
         if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.D, fc.KEYBOARD_CODE.ARROW_RIGHT])) {
           this.moveRight();
@@ -75,7 +75,7 @@ namespace Script {
           this.addJumpVelocity();
         }
         else {
-          if(this.jumpHeight > 1){
+          if(this.jumpHeight > 1.5){
             this.applyJumpVelocity(this.jumpHeight);
           }
           this.jumpHeight = 0;
@@ -92,40 +92,36 @@ namespace Script {
       applyJumpVelocity(velo: number): void {
         if(!isAirborne){
           if(velo < 10){
-            this.rigidbody.setVelocity(new fc.Vector3(this.currentVelocity.x, velo, this.currentVelocity.z));
+            this.rigidbody.applyForce(new fc.Vector3(0, velo*500, 0));
           }
           else {
-            this.rigidbody.setVelocity(new fc.Vector3(this.currentVelocity.x, 10, this.currentVelocity.z));
+            this.rigidbody.applyForce(new fc.Vector3(0, 5000, 0));
           }
           isAirborne = true;
         }
       }
 
       moveRight(): void {
-        if(this.rigidbody.getVelocity().z < -3){
-          this.rigidbody.setVelocity(new fc.Vector3(this.currentVelocity.x, this.currentVelocity.y, 2.5));
+        if(this.currentVelocity.z < 5){
+          this.rigidbody.applyForce(new fc.Vector3(0, 0, 100));
         }
-        this.rigidbody.applyForce(new fc.Vector3(0,0,25));
       }
 
       moveLeft(): void {
-        if(this.rigidbody.getVelocity().z > 3){
-          this.rigidbody.setVelocity(new fc.Vector3(this.currentVelocity.x, this.currentVelocity.y, -2.5));
+        if(this.currentVelocity.z > -5){
+          this.rigidbody.applyForce(new fc.Vector3(0, 0, -100));
         }
-        this.rigidbody.applyForce(new fc.Vector3(0,0,-25));
       }
 
       moveForward(): void {
-        this.rigidbody.setVelocity(new fc.Vector3(this.currentVelocity.x + 1, this.currentVelocity.y, this.currentVelocity.z));
-        if(this.currentVelocity.x > 20) {
-          this.rigidbody.setVelocity(new fc.Vector3(20, this.currentVelocity.y, this.currentVelocity.z));
+        if(this.currentVelocity.x < 2000) {
+          this.rigidbody.applyForce(new fc.Vector3(200, -3, 0));
         }
       }
 
       moveBrake(): void {
-        this.rigidbody.setVelocity(new fc.Vector3(this.currentVelocity.x -1, this.currentVelocity.y, this.currentVelocity.z))
-        if(this.currentVelocity.x < 2) {
-          this.rigidbody.setVelocity(new fc.Vector3(2, this.currentVelocity.y, this.currentVelocity.z));
+        if(this.currentVelocity.x > 2) {
+          this.rigidbody.applyForce(new fc.Vector3(-20, 0, 0));
         }
       }
     }

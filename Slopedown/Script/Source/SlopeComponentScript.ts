@@ -49,7 +49,7 @@ namespace Script {
       }
 
       private onSlope = (_event: Event): void => {
-        if (currentTime/1000 > 2 /* TODO: Add variable aswell */){
+        if (currentTime/1000 > 1 /* TODO: Add variable aswell */){
             isAirborne = false;
         }
       }

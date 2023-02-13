@@ -44,6 +44,7 @@ namespace Script {
       private receiveBoost = (_event: Event): void => {
         if (currentTime/1000 > 2 /* TODO: Execute boost effect*/){
             console.log("boosted");
+            avatar.getComponent(fc.ComponentRigidbody).applyForce(new fc.Vector3(10000, -2000, 0))
         }
       }
 
