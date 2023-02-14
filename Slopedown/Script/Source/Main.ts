@@ -9,11 +9,9 @@ namespace Script {
   export let isAirborne: boolean;
   export let avatar: fc.Node;
 
-  let background: fc.Node;
   let timeSinceStart: number;
   let cmpCamera: fc.ComponentCamera;
   let Avatar: fc.Node;
-  let avatarStartingPoint: fc.Vector3;
   document.addEventListener("interactiveViewportStarted", <EventListener>start);
 
   function start(_event: CustomEvent): void {
@@ -24,8 +22,6 @@ namespace Script {
     currentTime = 0;
     isAirborne = false;
     avatar = viewport.getBranch().getChildrenByName("Avatar")[0];
-    avatarStartingPoint = avatar.mtxLocal.translation;
-    background = viewport.getBranch().getChildrenByName("Background")[0];
     let branch: fc.Node = viewport.getBranch();
     Avatar = branch.getChildrenByName("Avatar")[0];
     fc.Loop.addEventListener(fc.EVENT.LOOP_FRAME, update);

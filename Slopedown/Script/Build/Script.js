@@ -152,11 +152,9 @@ var Script;
 (function (Script) {
     var fc = FudgeCore;
     fc.Debug.info("Main Program Template running!");
-    let background;
     let timeSinceStart;
     let cmpCamera;
     let Avatar;
-    let avatarStartingPoint;
     document.addEventListener("interactiveViewportStarted", start);
     function start(_event) {
         timeSinceStart = fc.Time.game.get();
@@ -166,8 +164,6 @@ var Script;
         Script.currentTime = 0;
         Script.isAirborne = false;
         Script.avatar = Script.viewport.getBranch().getChildrenByName("Avatar")[0];
-        avatarStartingPoint = Script.avatar.mtxLocal.translation;
-        background = Script.viewport.getBranch().getChildrenByName("Background")[0];
         let branch = Script.viewport.getBranch();
         Avatar = branch.getChildrenByName("Avatar")[0];
         fc.Loop.addEventListener("loopFrame" /* fc.EVENT.LOOP_FRAME */, update);
