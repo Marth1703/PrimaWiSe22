@@ -31,6 +31,11 @@ function init(_event)/* : void */ {
   dialog.showModal();
 }
 
+function setUpCamera(_cmpCamera, _graph) {
+  let avatar = _graph.getChildrenByName("Avatar")[0];
+  avatar.addComponent(_cmpCamera);
+}
+
 // setup and start interactive viewport
 async function startInteractiveViewport(_graphId)/* : void */ {
   // load resources referenced in the link-tag
@@ -58,14 +63,15 @@ async function startInteractiveViewport(_graphId)/* : void */ {
   canvas.addEventListener("mousedown", canvas.requestPointerLock);
   canvas.addEventListener("mouseup", function () { document.exitPointerLock(); });
 
-  let avatar = graph.getChildrenByName("Avatar")[0];
-  avatar.addComponent(cmpCamera);
+  //setUpCamera(cmpCamera, graph);
+
+
   // setup audio
-  let cmpListener/* : ƒ.ComponentAudioListener */ = new ƒ.ComponentAudioListener();
-  cmpCamera.node.addComponent(cmpListener);
-  ƒ.AudioManager.default.listenWith(cmpListener);
-  ƒ.AudioManager.default.listenTo(graph);
-  ƒ.Debug.log("Audio:", ƒ.AudioManager.default);
+  // let cmpListener/* : ƒ.ComponentAudioListener */ = new ƒ.ComponentAudioListener();
+  // cmpCamera.node.addComponent(cmpListener);
+  // ƒ.AudioManager.default.listenWith(cmpListener);
+  // ƒ.AudioManager.default.listenTo(graph);
+  // ƒ.Debug.log("Audio:", ƒ.AudioManager.default);
 
   // draw viewport once for immediate feedback
   ƒ.Render.prepare(cameraOrbit);

@@ -37,12 +37,14 @@ namespace Script {
             outerRingRigidBody.mtxPivot.translateX(1);
             outerRingRigidBody.mtxPivot.scaling = new fc.Vector3(4, 1, 1.5);
 
+            let ringAudio: fc.ComponentAudio = new fc.ComponentAudio();
             let ringScript: RingComponentScript = new RingComponentScript();
 
             this.addComponent(outerRingMesh);
             this.addComponent(outerMatComp);
             this.addComponent(outerRingTransform);
             this.addComponent(outerRingRigidBody);
+            this.addComponent(ringAudio);
             this.addComponent(ringScript);
 
             innerRing.addComponent(innerRingMesh);

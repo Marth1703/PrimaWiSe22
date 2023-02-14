@@ -8,6 +8,7 @@ namespace Script {
       // Properties may be mutated by users in the editor via the automatically created user interface
       public message: string = "RingComponentScript added to ";
 
+      private boostSound: fc.Audio;
       private boostCylinder: fc.ComponentRigidbody;
       constructor() {
         super();
@@ -29,6 +30,7 @@ namespace Script {
             fc.Debug.log(this.message, this.node);
             this.boostCylinder = this.node.getComponent(fc.ComponentRigidbody);
             this.boostCylinder.addEventListener(fc.EVENT_PHYSICS.TRIGGER_ENTER, this.receiveBoost);
+            this.boostSound = new fc.Audio(".\\Sounds\\boost.mp3");
             break;
           case fc.EVENT.COMPONENT_REMOVE:
             this.removeEventListener(fc.EVENT.COMPONENT_ADD, this.hndEvent);
@@ -42,9 +44,13 @@ namespace Script {
       }
 
       private receiveBoost = (_event: Event): void => {
-        if (currentTime/1000 > 2 /* TODO: Execute boost effect*/){
-            console.log("boosted");
-            avatar.getComponent(fc.ComponentRigidbody).applyForce(new fc.Vector3(10000, -2000, 0))
+        if (currentTime/1000 > 2){
+          console.log("boosted");
+          let componentAudio = this.node.getComponent(fc.ComponentAudio);
+          componentAudio.setAudio(this.boostSound);
+          componentAudio.volume = 1.5;
+          componentAudio.play(true);
+          avatar.getComponent(fc.ComponentRigidbody).applyForce(new fc.Vector3(10000, -2000, 0));
         }
       }
 

@@ -7,6 +7,7 @@ namespace Script {
 
         public velocity: string; 
         public time: string;
+        public coins: string;
         private controller: fui.Controller;
         
         constructor (){ 

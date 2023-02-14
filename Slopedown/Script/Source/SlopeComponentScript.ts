@@ -36,24 +36,26 @@ namespace Script {
           case fc.EVENT.NODE_DESERIALIZED:
             this.deathPlane = this.node.getChildrenByName("Deathplane")[0].getComponent(fc.ComponentRigidbody);
             this.colliderPlane = this.node.getChildrenByName("Colliderplane")[0].getComponent(fc.ComponentRigidbody);
-            this.deathPlane.addEventListener(fc.EVENT_PHYSICS.TRIGGER_ENTER, this.enteredDeathPlane);
+            this.deathPlane.addEventListener(fc.EVENT_PHYSICS.TRIGGER_ENTER, this.playerRespawn);
             this.colliderPlane.addEventListener(fc.EVENT_PHYSICS.TRIGGER_ENTER, this.onSlope);
             break;
         }
       }
 
-      private enteredDeathPlane = (_event: Event): void => {
-        if (currentTime/1000 > 2 /* TODO: Add variable for earliest death time */){
-            console.log("playerDied");
-        }
-      }
-
       private onSlope = (_event: Event): void => {
-        if (currentTime/1000 > 1 /* TODO: Add variable aswell */){
-            isAirborne = false;
+        if (currentTime/1000 > 1){
+          isAirborne = false;
         }
       }
-  
+      
+      playerRespawn = (): void => {
+        if (currentTime / 1000 > 2){
+
+          console.log("WWWWADADADA");
+          
+          this.node.dispatchEvent(new CustomEvent("fall", {bubbles: true}));
+        }
+      }
       // protected reduceMutator(_mutator: ƒ.Mutator): void {
       //   // delete properties that should not be mutated
       //   // undefined properties and private fields (#) will not be included by default

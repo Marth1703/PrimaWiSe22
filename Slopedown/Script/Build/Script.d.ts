@@ -19,6 +19,24 @@ declare namespace Script {
     }
 }
 declare namespace Script {
+    import fc = FudgeCore;
+    class CoinComponentScript extends fc.ComponentScript {
+        static readonly iSubclass: number;
+        message: string;
+        private coinSound;
+        private coinBody;
+        constructor();
+        hndEvent: (_event: Event) => void;
+        private collectCoin;
+    }
+}
+declare namespace Script {
+    import fc = FudgeCore;
+    class CoinNode extends fc.Node {
+        constructor(_cords: number);
+    }
+}
+declare namespace Script {
     import ƒ = FudgeCore;
     class CustomComponentScript extends ƒ.ComponentScript {
         static readonly iSubclass: number;
@@ -29,17 +47,26 @@ declare namespace Script {
 }
 declare namespace Script {
     import fc = FudgeCore;
+    class FenceNode extends fc.Node {
+        constructor();
+    }
+}
+declare namespace Script {
+    import fc = FudgeCore;
     let viewport: fc.Viewport;
     let vui: VUI;
     let currentTime: number;
     let isAirborne: boolean;
     let avatar: fc.Node;
+    let currentCoins: number;
+    let componentAudio: fc.ComponentAudio;
 }
 declare namespace Script {
     import fc = FudgeCore;
     class RingComponentScript extends fc.ComponentScript {
         static readonly iSubclass: number;
         message: string;
+        private boostSound;
         private boostCylinder;
         constructor();
         hndEvent: (_event: Event) => void;
@@ -61,8 +88,8 @@ declare namespace Script {
         private colliderPlane;
         constructor();
         hndEvent: (_event: Event) => void;
-        private enteredDeathPlane;
         private onSlope;
+        playerRespawn: () => void;
     }
 }
 declare namespace Script {
@@ -77,6 +104,7 @@ declare namespace Script {
         protected reduceMutator(_mutator: fc.Mutator): void;
         velocity: string;
         time: string;
+        coins: string;
         private controller;
         constructor();
     }
