@@ -45,6 +45,41 @@ namespace Script {
             this.addComponent(coinRigidBody);
             this.addComponent(coinAudio);
             this.addComponent(coinScript);
+
+
+            let animseqRot: fc.AnimationSequence = new fc.AnimationSequence();
+            animseqRot.addKey(new fc.AnimationKey(0, 1));
+            animseqRot.addKey(new fc.AnimationKey(750, 1.3));
+            animseqRot.addKey(new fc.AnimationKey(1500, 1));
+        
+            let animStructure: fc.AnimationStructure = {
+              components: {
+                ComponentTransform: [
+                  {
+                    "ƒ.ComponentTransform": {
+                      mtxLocal: {
+                        scaling: {
+                          x: animseqRot,
+                          z: animseqRot
+        
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            };
+        
+            let fps: number = 30;
+        
+            let animation: fc.Animation = new fc.Animation("testAnimation", animStructure, fps);
+        
+            let cmpAnimator: fc.ComponentAnimator = new fc.ComponentAnimator(animation);
+            cmpAnimator.scale = 1;
+        
+            this.addComponent(cmpAnimator);
+            cmpAnimator.activate(true);
         }
+
     }
 }

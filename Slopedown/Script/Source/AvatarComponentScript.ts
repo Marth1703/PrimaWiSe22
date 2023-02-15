@@ -114,8 +114,8 @@ namespace Script {
       }
 
       moveForward(): void {
-        if(this.currentVelocity.x < 30) {
-          this.rigidbody.applyForce(new fc.Vector3(200, -3, 0));
+        if(this.currentVelocity.x < 3000) {
+          this.rigidbody.applyForce(new fc.Vector3(2000, -3, 0));
         }
       }
 

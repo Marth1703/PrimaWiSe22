@@ -12,55 +12,44 @@ namespace Script {
   export let componentAudio: fc.ComponentAudio;
   let timeSinceStart: number;
   let cmpCamera: fc.ComponentCamera;
-  let AvatarStartingPosition: fc.Vector3;
   document.addEventListener("interactiveViewportStarted", <EventListener>start);
 
   function start(_event: CustomEvent): void {
     timeSinceStart = fc.Time.game.get();
     viewport = _event.detail;
     cmpCamera = viewport.camera;
+    fetchCameraPosition();
     let branch: fc.Node = viewport.getBranch();
-    vui = new VUI(); 
+    vui = new VUI();
     currentTime = 0;
     isAirborne = false;
     avatar = branch.getChildrenByName("Avatar")[0];
-    AvatarStartingPosition = avatar.getComponent(fc.ComponentTransform).mtxLocal.translation;
     currentCoins = 0;
     fc.Loop.addEventListener(fc.EVENT.LOOP_FRAME, update);
-    branch.addEventListener("fall", respawn);
-    cmpCamera.mtxPivot.translate(new fc.Vector3(0, 2, -20));
+    branch.addEventListener("fall", stopGame);
+    branch.addEventListener("fin", endGame);
     setUpMusic();
-    //InitPhysics();
     createRing();
     createTree();
     createCoin();
     createFence();
-
-    setAvatar();
-
-    let cmpListener : fc.ComponentAudioListener  = new fc.ComponentAudioListener();
-    cmpCamera.node.addComponent(cmpListener);
-    fc.AudioManager.default.listenWith(cmpListener);
-    fc.AudioManager.default.listenTo(branch);
-
     fc.Loop.start();  // start the game loop to continously draw the viewport, update the audiosystem and drive the physics i/a
   }
 
-  function setAvatar(): void {
+  function stopGame(): void {
+    avatar.activate(false);
+    componentAudio.play(false);
+  }
 
-    let aavatar: fc.Node = new fc.Node("Avatar");
-    let AvatarCube: fc.MeshCube = new fc.MeshCube("avaCube");
-    let AvatarMesh: fc.ComponentMesh = new fc.ComponentMesh(AvatarCube);
-    let AvatarMat: fc.Material = new fc.Material("AvatarMat", fc.ShaderLit);
-    let AvatarMatComp: fc.ComponentMaterial = new fc.ComponentMaterial(AvatarMat);
-    AvatarMatComp.clrPrimary= new fc.Color(0.99, 0.1, 0.1);
-    let AvatarTransform: fc.ComponentTransform = new fc.ComponentTransform();
-    AvatarTransform.mtxLocal.translation = new fc.Vector3(-430, 58.4, 0);
-    AvatarTransform.mtxLocal.rotateY(90);
-    let AvatarRigidBody: fc.ComponentRigidbody = new fc.ComponentRigidbody();
-    AvatarRigidBody.initialization = fc.BODY_INIT.TO_MESH;
-    AvatarRigidBody.friction
-    avatar.addComponent(cmpCamera);
+  function endGame(): void {
+    componentAudio.play(false);
+    componentAudio.setAudio(new fc.Audio(".\\Sounds\\victory.mp3"));
+    componentAudio.volume = 0.3;
+    componentAudio.play(true);
+    avatar.activate(false);
+    let calculatedScore: number = currentCoins*200 + (60000-currentTime);
+    vui.score = "Final Score: " + calculatedScore.toFixed(0);
+    vui.final = "Final Time: " + (currentTime/1000).toFixed(3) + "s";
   }
 
   function setUpMusic(): void {
@@ -70,6 +59,12 @@ namespace Script {
     componentAudio.setAudio(music);
     componentAudio.volume = 0.1;
     componentAudio.play(true);
+  }
+
+  async function fetchCameraPosition(): Promise<void> {
+    let response: Response = await fetch("config.json");
+    let camAngle: any = await response.json();
+    cmpCamera.mtxPivot.translate(new fc.Vector3(camAngle.CameraX, camAngle.CameraY, camAngle.CameraZ));
   }
 
   function createRing(): void {
@@ -89,6 +84,7 @@ namespace Script {
     viewport.getBranch().addChild(coin);
     viewport.getBranch().addChild(coin1);
     viewport.getBranch().addChild(coin2);
+    //initAnim(coin);
   }
 
   function createFence(): void {
@@ -101,18 +97,7 @@ namespace Script {
     viewport.draw();
     fc.AudioManager.default.update();
     currentTime = fc.Time.game.get() - timeSinceStart;
-    vui.time = "Time: " + (currentTime/1000).toFixed(3) + "s";
+    vui.time = "Time: " + (currentTime / 1000).toFixed(3) + "s";
     vui.coins = "Coins: " + currentCoins;
   }
-
-  function InitPhysics(): void {
-    let rigidbody: fc.ComponentRigidbody = avatar.getComponent(fc.ComponentRigidbody);
-    rigidbody.friction = 0;
-  }
-
-  function respawn(): void {
-    console.log("WWWWWWWWWWWWWWWWWWWWW");
-    avatar.activate(false);
-  }
-
 }

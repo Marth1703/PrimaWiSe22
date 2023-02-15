@@ -53,6 +53,17 @@ declare namespace Script {
 }
 declare namespace Script {
     import fc = FudgeCore;
+    class FinishComponentScript extends fc.ComponentScript {
+        static readonly iSubclass: number;
+        message: string;
+        private finishBody;
+        constructor();
+        hndEvent: (_event: Event) => void;
+        crossedLine: () => void;
+    }
+}
+declare namespace Script {
+    import fc = FudgeCore;
     let viewport: fc.Viewport;
     let vui: VUI;
     let currentTime: number;
@@ -105,6 +116,8 @@ declare namespace Script {
         velocity: string;
         time: string;
         coins: string;
+        score: string;
+        final: string;
         private controller;
         constructor();
     }

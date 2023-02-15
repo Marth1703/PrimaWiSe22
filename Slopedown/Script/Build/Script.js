@@ -94,8 +94,8 @@ var Script;
             }
         }
         moveForward() {
-            if (this.currentVelocity.x < 30) {
-                this.rigidbody.applyForce(new fc.Vector3(200, -3, 0));
+            if (this.currentVelocity.x < 3000) {
+                this.rigidbody.applyForce(new fc.Vector3(2000, -3, 0));
             }
         }
         moveBrake() {
@@ -192,6 +192,32 @@ var Script;
             this.addComponent(coinRigidBody);
             this.addComponent(coinAudio);
             this.addComponent(coinScript);
+            let animseqRot = new fc.AnimationSequence();
+            animseqRot.addKey(new fc.AnimationKey(0, 1));
+            animseqRot.addKey(new fc.AnimationKey(750, 1.3));
+            animseqRot.addKey(new fc.AnimationKey(1500, 1));
+            let animStructure = {
+                components: {
+                    ComponentTransform: [
+                        {
+                            "ƒ.ComponentTransform": {
+                                mtxLocal: {
+                                    scaling: {
+                                        x: animseqRot,
+                                        z: animseqRot
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            };
+            let fps = 30;
+            let animation = new fc.Animation("testAnimation", animStructure, fps);
+            let cmpAnimator = new fc.ComponentAnimator(animation);
+            cmpAnimator.scale = 1;
+            this.addComponent(cmpAnimator);
+            cmpAnimator.activate(true);
         }
     }
     Script.CoinNode = CoinNode;
@@ -289,52 +315,89 @@ var Script;
 var Script;
 (function (Script) {
     var fc = FudgeCore;
+    fc.Project.registerScriptNamespace(Script); // Register the namespace to FUDGE for serialization
+    class FinishComponentScript extends fc.ComponentScript {
+        constructor() {
+            super();
+            // Properties may be mutated by users in the editor via the automatically created user interface
+            this.message = "FinishComponentScript added to ";
+            // Activate the functions of this component as response to events
+            this.hndEvent = (_event) => {
+                switch (_event.type) {
+                    case "componentAdd" /* COMPONENT_ADD */:
+                        fc.Debug.log(this.message, this.node);
+                        this.finishBody = this.node.getComponent(fc.ComponentRigidbody);
+                        this.finishBody.addEventListener("TriggerEnteredCollision" /* TRIGGER_ENTER */, this.crossedLine);
+                        break;
+                    case "componentRemove" /* COMPONENT_REMOVE */:
+                        this.removeEventListener("componentAdd" /* COMPONENT_ADD */, this.hndEvent);
+                        this.removeEventListener("componentRemove" /* COMPONENT_REMOVE */, this.hndEvent);
+                        break;
+                    case "nodeDeserialized" /* NODE_DESERIALIZED */:
+                        break;
+                    case "nodeActivate" /* NODE_ACTIVATE */:
+                        break;
+                }
+            };
+            this.crossedLine = () => {
+                if (Script.currentTime / 1000 > 2) {
+                    this.node.dispatchEvent(new CustomEvent("fin", { bubbles: true }));
+                }
+            };
+            // Don't start when running in editor
+            if (fc.Project.mode == fc.MODE.EDITOR)
+                return;
+            // Listen to this component being added to or removed from a node
+            this.addEventListener("componentAdd" /* COMPONENT_ADD */, this.hndEvent);
+            this.addEventListener("componentRemove" /* COMPONENT_REMOVE */, this.hndEvent);
+            this.addEventListener("nodeDeserialized" /* NODE_DESERIALIZED */, this.hndEvent);
+        }
+    }
+    // Register the script as component for use in the editor via drag&drop
+    FinishComponentScript.iSubclass = fc.Component.registerSubclass(FinishComponentScript);
+    Script.FinishComponentScript = FinishComponentScript;
+})(Script || (Script = {}));
+var Script;
+(function (Script) {
+    var fc = FudgeCore;
     fc.Debug.info("Main Program Template running!");
     let timeSinceStart;
     let cmpCamera;
-    let AvatarStartingPosition;
     document.addEventListener("interactiveViewportStarted", start);
     function start(_event) {
         timeSinceStart = fc.Time.game.get();
         Script.viewport = _event.detail;
         cmpCamera = Script.viewport.camera;
+        fetchCameraPosition();
         let branch = Script.viewport.getBranch();
         Script.vui = new Script.VUI();
         Script.currentTime = 0;
         Script.isAirborne = false;
         Script.avatar = branch.getChildrenByName("Avatar")[0];
-        AvatarStartingPosition = Script.avatar.getComponent(fc.ComponentTransform).mtxLocal.translation;
         Script.currentCoins = 0;
         fc.Loop.addEventListener("loopFrame" /* LOOP_FRAME */, update);
-        branch.addEventListener("fall", respawn);
-        cmpCamera.mtxPivot.translate(new fc.Vector3(0, 2, -20));
+        branch.addEventListener("fall", stopGame);
+        branch.addEventListener("fin", endGame);
         setUpMusic();
-        //InitPhysics();
         createRing();
         createTree();
         createCoin();
         createFence();
-        setAvatar();
-        let cmpListener = new fc.ComponentAudioListener();
-        cmpCamera.node.addComponent(cmpListener);
-        fc.AudioManager.default.listenWith(cmpListener);
-        fc.AudioManager.default.listenTo(branch);
         fc.Loop.start(); // start the game loop to continously draw the viewport, update the audiosystem and drive the physics i/a
     }
-    function setAvatar() {
-        let aavatar = new fc.Node("Avatar");
-        let AvatarCube = new fc.MeshCube("avaCube");
-        let AvatarMesh = new fc.ComponentMesh(AvatarCube);
-        let AvatarMat = new fc.Material("AvatarMat", fc.ShaderLit);
-        let AvatarMatComp = new fc.ComponentMaterial(AvatarMat);
-        AvatarMatComp.clrPrimary = new fc.Color(0.99, 0.1, 0.1);
-        let AvatarTransform = new fc.ComponentTransform();
-        AvatarTransform.mtxLocal.translation = new fc.Vector3(-430, 58.4, 0);
-        AvatarTransform.mtxLocal.rotateY(90);
-        let AvatarRigidBody = new fc.ComponentRigidbody();
-        AvatarRigidBody.initialization = fc.BODY_INIT.TO_MESH;
-        AvatarRigidBody.friction;
-        Script.avatar.addComponent(cmpCamera);
+    function stopGame() {
+        Script.avatar.activate(false);
+        Script.componentAudio.play(false);
+    }
+    function endGame() {
+        Script.componentAudio.play(false);
+        Script.componentAudio.setAudio(new fc.Audio(".\\Sounds\\victory.mp3"));
+        Script.componentAudio.volume = 0.3;
+        Script.componentAudio.play(true);
+        Script.avatar.activate(false);
+        let calculatedScore = Script.currentCoins * 200 + (60000 - Script.currentTime);
+        Script.vui.score = "Final Score: " + calculatedScore.toFixed(0);
+        Script.vui.final = "Final Time: " + (Script.currentTime / 1000).toFixed(3) + "s";
     }
     function setUpMusic() {
         Script.componentAudio = new fc.ComponentAudio();
@@ -343,6 +406,11 @@ var Script;
         Script.componentAudio.setAudio(music);
         Script.componentAudio.volume = 0.1;
         Script.componentAudio.play(true);
+    }
+    async function fetchCameraPosition() {
+        let response = await fetch("config.json");
+        let camAngle = await response.json();
+        cmpCamera.mtxPivot.translate(new fc.Vector3(camAngle.CameraX, camAngle.CameraY, camAngle.CameraZ));
     }
     function createRing() {
         let ring = new Script.RingNode();
@@ -359,6 +427,7 @@ var Script;
         Script.viewport.getBranch().addChild(coin);
         Script.viewport.getBranch().addChild(coin1);
         Script.viewport.getBranch().addChild(coin2);
+        //initAnim(coin);
     }
     function createFence() {
         let fence = new Script.FenceNode();
@@ -371,14 +440,6 @@ var Script;
         Script.currentTime = fc.Time.game.get() - timeSinceStart;
         Script.vui.time = "Time: " + (Script.currentTime / 1000).toFixed(3) + "s";
         Script.vui.coins = "Coins: " + Script.currentCoins;
-    }
-    function InitPhysics() {
-        let rigidbody = Script.avatar.getComponent(fc.ComponentRigidbody);
-        rigidbody.friction = 0;
-    }
-    function respawn() {
-        console.log("WWWWWWWWWWWWWWWWWWWWW");
-        Script.avatar.activate(false);
     }
 })(Script || (Script = {}));
 var Script;

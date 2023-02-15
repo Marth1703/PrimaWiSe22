@@ -2,14 +2,13 @@ namespace Script {
     import fc = FudgeCore;
     fc.Project.registerScriptNamespace(Script);  // Register the namespace to FUDGE for serialization
   
-    export class CoinComponentScript extends fc.ComponentScript {
+    export class FinishComponentScript extends fc.ComponentScript {
       // Register the script as component for use in the editor via drag&drop
-      public static readonly iSubclass: number = fc.Component.registerSubclass(CoinComponentScript);
+      public static readonly iSubclass: number = fc.Component.registerSubclass(FinishComponentScript);
       // Properties may be mutated by users in the editor via the automatically created user interface
-      public message: string = "CoinComponentScript added to ";
+      public message: string = "FinishComponentScript added to ";
 
-      private coinSound: fc.Audio;
-      private coinBody: fc.ComponentRigidbody;
+      private finishBody: fc.ComponentRigidbody;
       constructor() {
         super();
   
@@ -28,9 +27,8 @@ namespace Script {
         switch (_event.type) {
           case fc.EVENT.COMPONENT_ADD:
             fc.Debug.log(this.message, this.node);
-            this.coinBody = this.node.getComponent(fc.ComponentRigidbody);
-            this.coinBody.addEventListener(fc.EVENT_PHYSICS.TRIGGER_ENTER, this.collectCoin);
-            this.coinSound = new fc.Audio(".\\Sounds\\coinCollect.mp3");
+            this.finishBody = this.node.getComponent(fc.ComponentRigidbody);
+            this.finishBody.addEventListener(fc.EVENT_PHYSICS.TRIGGER_ENTER, this.crossedLine);
             break;
           case fc.EVENT.COMPONENT_REMOVE:
             this.removeEventListener(fc.EVENT.COMPONENT_ADD, this.hndEvent);
@@ -43,19 +41,11 @@ namespace Script {
         }
       }
 
-      private collectCoin = (_event: Event): void => {
-        if (currentTime/1000 > 2){
-          console.log("collected");
-          let componentAudio = this.node.getComponent(fc.ComponentAudio);
-          componentAudio.setAudio(this.coinSound);
-          componentAudio.volume = 0.3;
-          componentAudio.play(true);
-          currentCoins++;
-          this.node.getComponent(fc.ComponentMaterial).activate(false);
+      crossedLine = (): void => {
+        if (currentTime / 1000 > 2){
+          this.node.dispatchEvent(new CustomEvent("fin", {bubbles: true}));
         }
       }
-
-
   
       // protected reduceMutator(_mutator: ƒ.Mutator): void {
       //   // delete properties that should not be mutated
