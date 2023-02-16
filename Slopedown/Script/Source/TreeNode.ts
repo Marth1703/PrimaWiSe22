@@ -4,7 +4,7 @@ namespace Script {
 
     export class TreeNode extends fc.Node {
 
-        constructor() {
+        constructor(_cords: fc.Vector3) {
             super("Tree");
             let leaves: fc.Node = new fc.Node("leaves");
 
@@ -30,7 +30,7 @@ namespace Script {
             let trunkTransform: fc.ComponentTransform = new fc.ComponentTransform();
             let leavesTransform: fc.ComponentTransform = new fc.ComponentTransform();
             
-            trunkTransform.mtxLocal.translation = new fc.Vector3(-350, 51.5, -6);
+            trunkTransform.mtxLocal.translation = _cords;
             trunkTransform.mtxLocal.rotateZ(85);
 
             leavesTransform.mtxLocal.translateX(0.5);

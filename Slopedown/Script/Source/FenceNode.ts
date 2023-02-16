@@ -4,7 +4,7 @@ namespace Script {
 
     export class FenceNode extends fc.Node {
 
-        constructor() {
+        constructor(_cords: fc.Vector3) {
             super("Fence");
             let Leg1: fc.Node = new fc.Node("leg1");
             let Leg2: fc.Node = new fc.Node("leg2");
@@ -37,7 +37,7 @@ namespace Script {
             let Leg1Transform: fc.ComponentTransform = new fc.ComponentTransform();
             let Leg2Transform: fc.ComponentTransform = new fc.ComponentTransform();
             
-            FenceTransform.mtxLocal.translation = new fc.Vector3(-370, 53.5, -6);
+            FenceTransform.mtxLocal.translation = _cords;
             Leg1Transform.mtxLocal.translation = new fc.Vector3(0.2, -0.2, 1.2);
             Leg2Transform.mtxLocal.translation = new fc.Vector3(0.2, -0.2, -1.2);
 

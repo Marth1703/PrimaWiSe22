@@ -50,9 +50,6 @@ namespace Script {
       
       playerRespawn = (): void => {
         if (currentTime / 1000 > 2){
-
-          console.log("WWWWADADADA");
-          
           this.node.dispatchEvent(new CustomEvent("fall", {bubbles: true}));
         }
       }

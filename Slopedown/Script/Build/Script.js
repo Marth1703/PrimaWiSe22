@@ -68,8 +68,7 @@ var Script;
         }
         addJumpVelocity() {
             if (this.currentVelocity.y < 0) {
-                this.jumpHeight += 0.15;
-                console.log(this.jumpHeight);
+                this.jumpHeight += 0.35;
             }
         }
         applyJumpVelocity(velo) {
@@ -84,18 +83,18 @@ var Script;
             }
         }
         moveRight() {
-            if (this.currentVelocity.z < 5) {
-                this.rigidbody.applyForce(new fc.Vector3(0, 0, 100));
+            if (this.currentVelocity.z < 10) {
+                this.rigidbody.applyForce(new fc.Vector3(0, 0, 200));
             }
         }
         moveLeft() {
-            if (this.currentVelocity.z > -5) {
-                this.rigidbody.applyForce(new fc.Vector3(0, 0, -100));
+            if (this.currentVelocity.z > -10) {
+                this.rigidbody.applyForce(new fc.Vector3(0, 0, -200));
             }
         }
         moveForward() {
-            if (this.currentVelocity.x < 3000) {
-                this.rigidbody.applyForce(new fc.Vector3(2000, -3, 0));
+            if (this.currentVelocity.x < 30) {
+                this.rigidbody.applyForce(new fc.Vector3(200, -3, 0));
             }
         }
         moveBrake() {
@@ -121,7 +120,6 @@ var Script;
             this.hndEvent = (_event) => {
                 switch (_event.type) {
                     case "componentAdd" /* COMPONENT_ADD */:
-                        fc.Debug.log(this.message, this.node);
                         this.coinBody = this.node.getComponent(fc.ComponentRigidbody);
                         this.coinBody.addEventListener("TriggerEnteredCollision" /* TRIGGER_ENTER */, this.collectCoin);
                         this.coinSound = new fc.Audio(".\\Sounds\\coinCollect.mp3");
@@ -177,7 +175,7 @@ var Script;
             let coinMatComp = new fc.ComponentMaterial(coinMat);
             coinMatComp.mtxPivot.scaling = new fc.Vector2(1, 6);
             let coinTransform = new fc.ComponentTransform();
-            coinTransform.mtxLocal.translation = new fc.Vector3(-307, 48, _cords);
+            coinTransform.mtxLocal.translation = _cords;
             coinTransform.mtxLocal.rotateZ(85);
             let coinRigidBody = new fc.ComponentRigidbody();
             coinRigidBody.isTrigger = true;
@@ -263,7 +261,7 @@ var Script;
 (function (Script) {
     var fc = FudgeCore;
     class FenceNode extends fc.Node {
-        constructor() {
+        constructor(_cords) {
             super("Fence");
             let Leg1 = new fc.Node("leg1");
             let Leg2 = new fc.Node("leg2");
@@ -287,7 +285,7 @@ var Script;
             let FenceTransform = new fc.ComponentTransform();
             let Leg1Transform = new fc.ComponentTransform();
             let Leg2Transform = new fc.ComponentTransform();
-            FenceTransform.mtxLocal.translation = new fc.Vector3(-370, 53.5, -6);
+            FenceTransform.mtxLocal.translation = _cords;
             Leg1Transform.mtxLocal.translation = new fc.Vector3(0.2, -0.2, 1.2);
             Leg2Transform.mtxLocal.translation = new fc.Vector3(0.2, -0.2, -1.2);
             let FenceRigidBody = new fc.ComponentRigidbody();
@@ -363,6 +361,8 @@ var Script;
     fc.Debug.info("Main Program Template running!");
     let timeSinceStart;
     let cmpCamera;
+    let slopeStart = new fc.Vector2(-420, 58);
+    let slopeEnd = new fc.Vector2(480, -21.4);
     document.addEventListener("interactiveViewportStarted", start);
     function start(_event) {
         timeSinceStart = fc.Time.game.get();
@@ -379,15 +379,16 @@ var Script;
         branch.addEventListener("fall", stopGame);
         branch.addEventListener("fin", endGame);
         setUpMusic();
-        createRing();
-        createTree();
-        createCoin();
-        createFence();
+        createRings();
+        createTrees();
+        createCoins();
+        createFences();
         fc.Loop.start(); // start the game loop to continously draw the viewport, update the audiosystem and drive the physics i/a
     }
     function stopGame() {
         Script.avatar.activate(false);
         Script.componentAudio.play(false);
+        Script.vui.final = "Refresh (f5) to restart.";
     }
     function endGame() {
         Script.componentAudio.play(false);
@@ -412,26 +413,61 @@ var Script;
         let camAngle = await response.json();
         cmpCamera.mtxPivot.translate(new fc.Vector3(camAngle.CameraX, camAngle.CameraY, camAngle.CameraZ));
     }
-    function createRing() {
-        let ring = new Script.RingNode();
-        Script.viewport.getBranch().addChild(ring);
+    function createRings() {
+        let amountRings = 11;
+        let stepSize = 880 / (amountRings - 1);
+        for (let i = 0; i < amountRings; i++) {
+            let slopeSlope = (slopeEnd.y - slopeStart.y) / (slopeEnd.x - slopeStart.x);
+            let slopeIntercept = slopeStart.y - slopeSlope * slopeStart.x;
+            let ringX = slopeStart.x + i * stepSize + 0.7;
+            let ringY = slopeSlope * ringX + slopeIntercept - 0.7;
+            let ringZ = fc.random.getRange(-8, 8);
+            let ring = new Script.RingNode(new fc.Vector3(ringX, ringY, ringZ));
+            Script.viewport.getBranch().addChild(ring);
+        }
     }
-    function createTree() {
-        let tree = new Script.TreeNode();
-        Script.viewport.getBranch().addChild(tree);
+    function createTrees() {
+        let amountTrees = 22;
+        let stepSize = 880 / (amountTrees - 1);
+        for (let i = 0; i < amountTrees; i++) {
+            let slopeSlope = (slopeEnd.y - slopeStart.y) / (slopeEnd.x - slopeStart.x);
+            let slopeIntercept = slopeStart.y - slopeSlope * slopeStart.x;
+            let treeX = slopeStart.x + i * stepSize;
+            let treeY = slopeSlope * treeX + slopeIntercept - 0.3;
+            let treeZ = fc.random.getRange(-8, 8);
+            let tree = new Script.TreeNode(new fc.Vector3(treeX, treeY, treeZ));
+            Script.viewport.getBranch().addChild(tree);
+        }
     }
-    function createCoin() {
-        let coin = new Script.CoinNode(3);
-        let coin1 = new Script.CoinNode(-3);
-        let coin2 = new Script.CoinNode(0);
-        Script.viewport.getBranch().addChild(coin);
-        Script.viewport.getBranch().addChild(coin1);
-        Script.viewport.getBranch().addChild(coin2);
-        //initAnim(coin);
+    function createCoins() {
+        let amountCoins = 10;
+        let stepSize = 880 / (amountCoins - 1);
+        for (let i = 0; i < amountCoins; i++) {
+            let slopeSlope = (slopeEnd.y - slopeStart.y) / (slopeEnd.x - slopeStart.x);
+            let slopeIntercept = slopeStart.y - slopeSlope * slopeStart.x;
+            let coinX = slopeStart.x + i * stepSize - 0.3;
+            let coinY = slopeSlope * coinX + slopeIntercept + 0.1;
+            let coinZ = fc.random.getRange(-8, 8);
+            let coin1 = new Script.CoinNode(new fc.Vector3(coinX, coinY, coinZ));
+            let coin2 = new Script.CoinNode(new fc.Vector3(coinX + 3, coinY - 0.2, coinZ));
+            let coin3 = new Script.CoinNode(new fc.Vector3(coinX + 6, coinY - 0.4, coinZ));
+            Script.viewport.getBranch().addChild(coin1);
+            Script.viewport.getBranch().addChild(coin2);
+            Script.viewport.getBranch().addChild(coin3);
+        }
     }
-    function createFence() {
-        let fence = new Script.FenceNode();
-        Script.viewport.getBranch().addChild(fence);
+    function createFences() {
+        let amountFences = 13;
+        let stepSize = 880 / (amountFences - 1);
+        for (let i = 0; i < amountFences; i++) {
+            let slopeSlope = (slopeEnd.y - slopeStart.y) / (slopeEnd.x - slopeStart.x);
+            let slopeIntercept = slopeStart.y - slopeSlope * slopeStart.x;
+            let fenceX = slopeStart.x + i * stepSize;
+            let fenceY = slopeSlope * fenceX + slopeIntercept + 0.1;
+            let fenceZ = fc.random.getRange(-8, 8);
+            let fence = new Script.FenceNode(new fc.Vector3(fenceX, fenceY, fenceZ));
+            Script.viewport.getBranch().addChild(fence);
+        }
     }
     function update(_event) {
         fc.Physics.simulate(); // if physics is included and used
@@ -455,7 +491,7 @@ var Script;
             this.hndEvent = (_event) => {
                 switch (_event.type) {
                     case "componentAdd" /* COMPONENT_ADD */:
-                        fc.Debug.log(this.message, this.node);
+                        //fc.Debug.log(this.message, this.node);
                         this.boostCylinder = this.node.getComponent(fc.ComponentRigidbody);
                         this.boostCylinder.addEventListener("TriggerEnteredCollision" /* TRIGGER_ENTER */, this.receiveBoost);
                         this.boostSound = new fc.Audio(".\\Sounds\\boost.mp3");
@@ -472,10 +508,9 @@ var Script;
             };
             this.receiveBoost = (_event) => {
                 if (Script.currentTime / 1000 > 2) {
-                    console.log("boosted");
                     let componentAudio = this.node.getComponent(fc.ComponentAudio);
                     componentAudio.setAudio(this.boostSound);
-                    componentAudio.volume = 1.5;
+                    componentAudio.volume = 2;
                     componentAudio.play(true);
                     Script.avatar.getComponent(fc.ComponentRigidbody).applyForce(new fc.Vector3(10000, -2000, 0));
                 }
@@ -497,7 +532,7 @@ var Script;
 (function (Script) {
     var fc = FudgeCore;
     class RingNode extends fc.Node {
-        constructor() {
+        constructor(_cords) {
             super("Ring");
             let innerRing = new fc.Node("boostCylinder");
             let outerRingTorus = new fc.MeshTorus("outerRingM", 0.08, 15, 10);
@@ -513,13 +548,13 @@ var Script;
             outerMatComp.clrPrimary = new fc.Color(0.31, 0.41, 0.6);
             innerMatComp.clrPrimary = new fc.Color(0.97, 0.86, 0.21);
             let outerRingTransform = new fc.ComponentTransform();
-            outerRingTransform.mtxLocal.translation = new fc.Vector3(-90, 28, -6);
+            outerRingTransform.mtxLocal.translation = _cords;
             outerRingTransform.mtxLocal.rotateZ(85);
             let outerRingRigidBody = new fc.ComponentRigidbody();
             outerRingRigidBody.isTrigger = true;
             outerRingRigidBody.effectGravity = 0;
             outerRingRigidBody.mtxPivot.translateX(1);
-            outerRingRigidBody.mtxPivot.scaling = new fc.Vector3(4, 1, 1.5);
+            outerRingRigidBody.mtxPivot.scaling = new fc.Vector3(4, 1, 2.7);
             let ringAudio = new fc.ComponentAudio();
             let ringScript = new Script.RingComponentScript();
             this.addComponent(outerRingMesh);
@@ -569,7 +604,6 @@ var Script;
             };
             this.playerRespawn = () => {
                 if (Script.currentTime / 1000 > 2) {
-                    console.log("WWWWADADADA");
                     this.node.dispatchEvent(new CustomEvent("fall", { bubbles: true }));
                 }
             };
@@ -590,7 +624,7 @@ var Script;
 (function (Script) {
     var fc = FudgeCore;
     class TreeNode extends fc.Node {
-        constructor() {
+        constructor(_cords) {
             super("Tree");
             let leaves = new fc.Node("leaves");
             let trunkRot = new fc.MeshRotation("trunk", [new fc.Vector2(0.3, 0.5), new fc.Vector2(0.4, -1)], 12);
@@ -608,7 +642,7 @@ var Script;
             leavesMatComp.clrPrimary = new fc.Color(0, 0.4, 0);
             let trunkTransform = new fc.ComponentTransform();
             let leavesTransform = new fc.ComponentTransform();
-            trunkTransform.mtxLocal.translation = new fc.Vector3(-350, 51.5, -6);
+            trunkTransform.mtxLocal.translation = _cords;
             trunkTransform.mtxLocal.rotateZ(85);
             leavesTransform.mtxLocal.translateX(0.5);
             let trunkRigidBody = new fc.ComponentRigidbody();

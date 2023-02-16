@@ -4,7 +4,7 @@ namespace Script {
 
     export class RingNode extends fc.Node {
 
-        constructor() {
+        constructor(_cords: fc.Vector3) {
             super("Ring");
             let innerRing: fc.Node = new fc.Node("boostCylinder");
 
@@ -28,14 +28,14 @@ namespace Script {
 
             let outerRingTransform: fc.ComponentTransform = new fc.ComponentTransform();
             
-            outerRingTransform.mtxLocal.translation = new fc.Vector3(-90, 28, -6);
+            outerRingTransform.mtxLocal.translation = _cords;
             outerRingTransform.mtxLocal.rotateZ(85);
 
             let outerRingRigidBody: fc.ComponentRigidbody = new fc.ComponentRigidbody();
             outerRingRigidBody.isTrigger = true;
             outerRingRigidBody.effectGravity = 0;
             outerRingRigidBody.mtxPivot.translateX(1);
-            outerRingRigidBody.mtxPivot.scaling = new fc.Vector3(4, 1, 1.5);
+            outerRingRigidBody.mtxPivot.scaling = new fc.Vector3(4, 1, 2.7);
 
             let ringAudio: fc.ComponentAudio = new fc.ComponentAudio();
             let ringScript: RingComponentScript = new RingComponentScript();

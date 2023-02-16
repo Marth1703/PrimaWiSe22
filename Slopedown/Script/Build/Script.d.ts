@@ -33,7 +33,7 @@ declare namespace Script {
 declare namespace Script {
     import fc = FudgeCore;
     class CoinNode extends fc.Node {
-        constructor(_cords: number);
+        constructor(_cords: fc.Vector3);
     }
 }
 declare namespace Script {
@@ -48,7 +48,7 @@ declare namespace Script {
 declare namespace Script {
     import fc = FudgeCore;
     class FenceNode extends fc.Node {
-        constructor();
+        constructor(_cords: fc.Vector3);
     }
 }
 declare namespace Script {
@@ -87,7 +87,7 @@ declare namespace Script {
 declare namespace Script {
     import fc = FudgeCore;
     class RingNode extends fc.Node {
-        constructor();
+        constructor(_cords: fc.Vector3);
     }
 }
 declare namespace Script {
@@ -106,7 +106,7 @@ declare namespace Script {
 declare namespace Script {
     import fc = FudgeCore;
     class TreeNode extends fc.Node {
-        constructor();
+        constructor(_cords: fc.Vector3);
     }
 }
 declare namespace Script {

@@ -4,7 +4,7 @@ namespace Script {
 
     export class CoinNode extends fc.Node {
 
-        constructor(_cords: number) {
+        constructor(_cords: fc.Vector3) {
             super("Coin");
 
             let coinTorus: fc.MeshTorus = new fc.MeshTorus("Cointorus", -0.250, 7, 6);
@@ -27,7 +27,7 @@ namespace Script {
 
             let coinTransform: fc.ComponentTransform = new fc.ComponentTransform();
             
-            coinTransform.mtxLocal.translation = new fc.Vector3(-307, 48, _cords);
+            coinTransform.mtxLocal.translation = _cords;
             coinTransform.mtxLocal.rotateZ(85);
 
             let coinRigidBody: fc.ComponentRigidbody = new fc.ComponentRigidbody();

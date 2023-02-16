@@ -27,7 +27,6 @@ namespace Script {
       public hndEvent = (_event: Event): void => {
         switch (_event.type) {
           case fc.EVENT.COMPONENT_ADD:
-            fc.Debug.log(this.message, this.node);
             this.coinBody = this.node.getComponent(fc.ComponentRigidbody);
             this.coinBody.addEventListener(fc.EVENT_PHYSICS.TRIGGER_ENTER, this.collectCoin);
             this.coinSound = new fc.Audio(".\\Sounds\\coinCollect.mp3");

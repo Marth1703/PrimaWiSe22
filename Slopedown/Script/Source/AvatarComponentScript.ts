@@ -84,8 +84,7 @@ namespace Script {
 
       addJumpVelocity(): void {
         if(this.currentVelocity.y < 0){
-          this.jumpHeight += 0.15;
-          console.log(this.jumpHeight);
+          this.jumpHeight += 0.35;
         }
       }
 
@@ -102,20 +101,20 @@ namespace Script {
       }
 
       moveRight(): void {
-        if(this.currentVelocity.z < 5){
-          this.rigidbody.applyForce(new fc.Vector3(0, 0, 100));
+        if(this.currentVelocity.z < 10){
+          this.rigidbody.applyForce(new fc.Vector3(0, 0, 200));
         }
       }
 
       moveLeft(): void {
-        if(this.currentVelocity.z > -5){
-          this.rigidbody.applyForce(new fc.Vector3(0, 0, -100));
+        if(this.currentVelocity.z > -10){
+          this.rigidbody.applyForce(new fc.Vector3(0, 0, -200));
         }
       }
 
       moveForward(): void {
-        if(this.currentVelocity.x < 3000) {
-          this.rigidbody.applyForce(new fc.Vector3(2000, -3, 0));
+        if(this.currentVelocity.x < 30) {
+          this.rigidbody.applyForce(new fc.Vector3(200, -3, 0));
         }
       }
 
