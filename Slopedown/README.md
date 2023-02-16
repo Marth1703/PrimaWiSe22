@@ -9,7 +9,7 @@
 - Code: https://github.com/Marth1703/PrimaWiSe22/tree/main/Slopedown
 - Design: https://marth1703.github.io/PrimaWiSe22/Slopedown/DesignSheet.pdf
 
-###Interactions
+### Interactions
                     
 Input  | Effect
 ------------- | -------------
