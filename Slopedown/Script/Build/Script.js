@@ -379,9 +379,9 @@ var Script;
         branch.addEventListener("fall", stopGame);
         branch.addEventListener("fin", endGame);
         setUpMusic();
-        createRings();
-        createTrees();
-        createCoins();
+        //createRings();
+        //createTrees();
+        //createCoins();
         createFences();
         fc.Loop.start(); // start the game loop to continously draw the viewport, update the audiosystem and drive the physics i/a
     }
