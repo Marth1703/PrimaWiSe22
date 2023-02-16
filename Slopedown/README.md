@@ -19,7 +19,9 @@ S  | Brakes
 D  | Slide right
 Space  | Hold and release to Execute Jump
 
-|NR   | Kriterium  |Erläuterung   |
+### Criteria
+
+|NR   | Criteria  |Explanation   |
 | :------------ | :------------ | :------------ |
 |1   |Units and Positions   | 0 is at the center of the stage, 1 is the size(width) of the avatar. |
 |2   |Hierarchy   | Everything is attached to a Level graph so it is compact. Everything else consists of child Nodes |
